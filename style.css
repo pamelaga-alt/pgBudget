@@ -1,10 +1,11 @@
-/* Basic Reset and  Setup */
-*{
-box-sizing: border-box;
+/* Basic Reset and Setup */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-body{
+
+body {
   font-family: Arial, sans-serif;
   background-color: #0f172a;
   color: #f8fafc;
@@ -13,6 +14,7 @@ body{
   align-items: center;
   min-height: 100vh;
 }
+
 .screen {
   background-color: #1e293b;
   padding: 2rem;
@@ -21,6 +23,7 @@ body{
   max-width: 500px;
   text-align: center;
 }
+
 button {
   background-color: #6366f1;
   color: white;
@@ -35,6 +38,7 @@ button {
 button:hover {
   background-color: #4f46e5;
 }
+
 /* Hides any section that has this class */
 .hidden {
   display: none !important;
