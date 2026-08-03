@@ -35,3 +35,7 @@ button {
 button:hover {
   background-color: #4f46e5;
 }
+/* Hides any section that has this class */
+.hidden {
+  display: none !important;
+}
