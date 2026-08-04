@@ -146,6 +146,11 @@
       <h3>📊 Spending Breakdown</h3>
       <div class="chart-wrapper">
         <canvas id="spendingPieChart"></canvas>
+        <div id="chart-empty-state" class="empty-state-card hidden">
+          <div class="empty-icon">🌱</div>
+          <h4>Fresh Month, Clean Slate!</h4>
+          <p>No spending logged yet. Log your first expense above to see your interactive breakdown graph take shape!</p>
+        </div>
       </div>
     </div>
 
@@ -162,6 +167,17 @@
         <button id="btn-fab-add-goal" class="fab-option-btn">🎯 Add Savings Goal</button>
       </div>
       <button id="btn-fab-main" class="fab-main-btn" title="Add Item">+</button>
+    </div>
+
+    <div id="modal-confirm" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3 id="confirm-modal-title">⚠️ Confirmation Required</h3>
+        <p id="confirm-modal-msg" style="margin-bottom: 20px; color: #cbd5e1;"></p>
+        <div class="modal-buttons">
+          <button id="btn-confirm-yes" class="btn-submit" style="background-color: #ef4444;">Confirm</button>
+          <button id="btn-confirm-no" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
     </div>
 
     <div id="modal-add-earnings" class="modal-overlay hidden">
