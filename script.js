@@ -12,7 +12,8 @@ let appState = {
     monthYear: "",
     totalBudget: 0,
     totalEarnings: 0,
-    categories: []
+    categories: [],
+    savingsGoals: []
   },
   archivedTrackers: [],
   settings: { lastUpdated: null }
@@ -25,6 +26,10 @@ const openHistoryCards = new Set();
 // Active tracking for transaction editing modal
 let currentEditingCatId = null;
 let currentEditingExpenseId = null;
+
+// Search and Filter State
+let searchQuery = "";
+let categoryFilter = "ALL";
 
 function getCurrentMonthYear() {
   const date = new Date();
@@ -41,6 +46,9 @@ function loadStateFromLocalStorage() {
   if (savedData) {
     try {
       appState = JSON.parse(savedData);
+      if (!appState.activeTracker.savingsGoals) {
+        appState.activeTracker.savingsGoals = [];
+      }
       return true;
     } catch (err) {
       console.error("Error parsing stored state:", err);
@@ -83,6 +91,7 @@ const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
 const btnAddEarnings = document.getElementById('btn-add-earnings');
 const postitContainer = document.getElementById('postit-container');
+const savingsGoalsContainer = document.getElementById('savings-goals-container');
 const expenseCategorySelect = document.getElementById('expense-category-select');
 const expenseNoteInput = document.getElementById('expense-note-input');
 const expenseAmountInput = document.getElementById('expense-amount-input');
@@ -97,6 +106,14 @@ const btnCloseModal = document.getElementById('btn-close-modal');
 const dashNewCatName = document.getElementById('dash-new-cat-name');
 const dashNewCatLimit = document.getElementById('dash-new-cat-limit');
 const dashNewCatRecurring = document.getElementById('dash-new-cat-recurring');
+
+const btnFloatingAddGoal = document.getElementById('btn-floating-add-goal');
+const modalAddGoal = document.getElementById('modal-add-goal');
+const btnSaveGoal = document.getElementById('btn-save-goal');
+const btnCloseGoalModal = document.getElementById('btn-close-goal-modal');
+
+const inputSearchExpenses = document.getElementById('input-search-expenses');
+const selectFilterCategory = document.getElementById('select-filter-category');
 
 const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const btnCloseSidebar = document.getElementById('btn-close-sidebar');
@@ -114,7 +131,6 @@ const modalAdvice = document.getElementById('modal-advice');
 const adviceContent = document.getElementById('advice-content');
 const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
 
-// Edit Expense Modal Elements
 const modalEditExpense = document.getElementById('modal-edit-expense');
 const btnSaveEditExpense = document.getElementById('btn-save-edit-expense');
 const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
@@ -230,7 +246,8 @@ setupForm.addEventListener('submit', (e) => {
     name: trackerName,
     totalBudget: totalBudget,
     totalEarnings: totalEarnings,
-    categories: [...configuredCategories]
+    categories: [...configuredCategories],
+    savingsGoals: []
   };
 
   saveStateToLocalStorage();
@@ -351,6 +368,16 @@ function renderSidebarHistory() {
 // -------------------------------------------------------------
 // 6. DASHBOARD & INTERACTION LOGIC
 // -------------------------------------------------------------
+inputSearchExpenses.addEventListener('input', (e) => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  renderDashboard();
+});
+
+selectFilterCategory.addEventListener('change', (e) => {
+  categoryFilter = e.target.value;
+  renderDashboard();
+});
+
 btnAddEarnings.addEventListener('click', () => {
   const extraEarnings = parseFloat(prompt("Enter additional earnings amount ($):"));
   if (!isNaN(extraEarnings) && extraEarnings > 0) {
@@ -395,6 +422,62 @@ btnSaveModalCat.addEventListener('click', () => {
   renderDashboard();
 });
 
+// SAVINGS GOAL LOGIC
+btnFloatingAddGoal.addEventListener('click', () => {
+  document.getElementById('goal-name').value = '';
+  document.getElementById('goal-target').value = '';
+  modalAddGoal.classList.remove('hidden');
+});
+
+btnCloseGoalModal.addEventListener('click', () => {
+  modalAddGoal.classList.add('hidden');
+});
+
+btnSaveGoal.addEventListener('click', () => {
+  const name = document.getElementById('goal-name').value.trim();
+  const target = parseFloat(document.getElementById('goal-target').value);
+
+  if (!name || isNaN(target) || target <= 0) {
+    alert("Please enter a valid goal name and target amount.");
+    return;
+  }
+
+  if (!appState.activeTracker.savingsGoals) {
+    appState.activeTracker.savingsGoals = [];
+  }
+
+  appState.activeTracker.savingsGoals.push({
+    id: `goal_${Date.now()}`,
+    name: name,
+    target: target,
+    saved: 0
+  });
+
+  saveStateToLocalStorage();
+  modalAddGoal.classList.add('hidden');
+  renderDashboard();
+});
+
+function addFundsToGoal(goalId) {
+  const goal = appState.activeTracker.savingsGoals.find(g => g.id === goalId);
+  if (!goal) return;
+
+  const amount = parseFloat(prompt(`Deposit funds into "${goal.name}" ($):`));
+  if (!isNaN(amount) && amount > 0) {
+    goal.saved += amount;
+    saveStateToLocalStorage();
+    renderDashboard();
+  }
+}
+
+function deleteGoal(goalId) {
+  if (confirm("Are you sure you want to delete this savings goal?")) {
+    appState.activeTracker.savingsGoals = appState.activeTracker.savingsGoals.filter(g => g.id !== goalId);
+    saveStateToLocalStorage();
+    renderDashboard();
+  }
+}
+
 btnAddExpense.addEventListener('click', () => {
   const selectedCatId = expenseCategorySelect.value;
   const noteText = expenseNoteInput.value.trim() || "Uncategorized Expense";
@@ -424,7 +507,6 @@ btnAddExpense.addEventListener('click', () => {
   }
 });
 
-// Category Deletion
 function deleteCategory(catId) {
   const category = appState.activeTracker.categories.find(c => c.id === catId);
   if (!category) return;
@@ -437,7 +519,6 @@ function deleteCategory(catId) {
   }
 }
 
-// Transaction Logging Actions: Delete & Edit
 function deleteExpense(catId, expenseId) {
   const category = appState.activeTracker.categories.find(c => c.id === catId);
   if (!category || !category.history) return;
@@ -452,7 +533,6 @@ function deleteExpense(catId, expenseId) {
   }
 }
 
-// Triggered when clicking ✏️ on a log item
 function editExpense(catId, expenseId) {
   const category = appState.activeTracker.categories.find(c => c.id === catId);
   if (!category || !category.history) return;
@@ -469,7 +549,6 @@ function editExpense(catId, expenseId) {
   modalEditExpense.classList.remove('hidden');
 }
 
-// Close Edit Expense Modal
 btnCloseEditModal.addEventListener('click', (e) => {
   e.preventDefault();
   modalEditExpense.classList.add('hidden');
@@ -477,7 +556,6 @@ btnCloseEditModal.addEventListener('click', (e) => {
   currentEditingExpenseId = null;
 });
 
-// Save Edited Expense Details
 btnSaveEditExpense.addEventListener('click', (e) => {
   e.preventDefault();
 
@@ -500,10 +578,7 @@ btnSaveEditExpense.addEventListener('click', (e) => {
     return;
   }
 
-  // Adjust overall category spent balance
   category.spent = Math.max(0, (category.spent - expense.amount) + newAmount);
-  
-  // Update transaction record
   expense.item = newNote;
   expense.amount = newAmount;
 
@@ -641,17 +716,36 @@ function renderDashboard() {
   dashTotalBudget.textContent = tracker.totalBudget.toFixed(2);
   dashEarnings.textContent = tracker.totalEarnings.toFixed(2);
 
+  // Update Category Selection Options
   expenseCategorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>';
+  selectFilterCategory.innerHTML = '<option value="ALL">All Categories</option>';
+
   tracker.categories.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat.id;
-    opt.textContent = cat.name;
-    expenseCategorySelect.appendChild(opt);
+    const optExp = document.createElement('option');
+    optExp.value = cat.id;
+    optExp.textContent = cat.name;
+    expenseCategorySelect.appendChild(optExp);
+
+    const optFilt = document.createElement('option');
+    optFilt.value = cat.id;
+    optFilt.textContent = cat.name;
+    if (categoryFilter === cat.id) optFilt.selected = true;
+    selectFilterCategory.appendChild(optFilt);
   });
 
   postitContainer.innerHTML = '';
 
   tracker.categories.forEach(cat => {
+    // Filter out categories if a specific category is selected
+    if (categoryFilter !== 'ALL' && cat.id !== categoryFilter) return;
+
+    let filteredHistory = cat.history || [];
+    if (searchQuery) {
+      filteredHistory = filteredHistory.filter(h => h.item.toLowerCase().includes(searchQuery));
+      // Hide card if searching and no transactions match
+      if (filteredHistory.length === 0) return;
+    }
+
     const fillPercent = (cat.spent / cat.limit) * 100;
     const cappedWidth = Math.min(fillPercent, 100);
 
@@ -662,10 +756,10 @@ function renderDashboard() {
     const note = document.createElement('div');
     note.className = 'postit-note';
 
-    const isHistoryOpen = openHistoryCards.has(cat.id);
+    // Auto expand history if searching
+    const isHistoryOpen = openHistoryCards.has(cat.id) || searchQuery.length > 0;
     const icon = cat.isRecurring ? '🔄' : '📌';
 
-    // Header Element with Delete Category Button
     const headerDiv = document.createElement('div');
     headerDiv.className = 'postit-header';
     headerDiv.innerHTML = `<span>${icon} ${cat.name}</span>`;
@@ -681,7 +775,6 @@ function renderDashboard() {
 
     headerDiv.appendChild(btnDeleteCat);
 
-    // Body Element
     const bodyDiv = document.createElement('div');
     bodyDiv.innerHTML = `
       <div class="postit-details">
@@ -690,7 +783,6 @@ function renderDashboard() {
       </div>
     `;
 
-    // Footer Element with History Logs & Actions
     const footerDiv = document.createElement('div');
 
     if (isHistoryOpen) {
@@ -701,8 +793,8 @@ function renderDashboard() {
       const historyUl = document.createElement('ul');
       historyUl.className = 'history-list';
 
-      if (cat.history && cat.history.length > 0) {
-        cat.history.forEach(h => {
+      if (filteredHistory.length > 0) {
+        filteredHistory.forEach(h => {
           const li = document.createElement('li');
           li.innerHTML = `
             <span>${h.date} - ${h.item}</span>
@@ -726,7 +818,7 @@ function renderDashboard() {
           historyUl.appendChild(li);
         });
       } else {
-        historyUl.innerHTML = '<li><em>No logs recorded yet</em></li>';
+        historyUl.innerHTML = '<li><em>No matching logs found</em></li>';
       }
 
       historyContainer.appendChild(historyUl);
@@ -747,7 +839,6 @@ function renderDashboard() {
     note.appendChild(bodyDiv);
     note.appendChild(footerDiv);
 
-    // Expand/Collapse Toggle
     note.addEventListener('click', () => {
       if (openHistoryCards.has(cat.id)) {
         openHistoryCards.delete(cat.id);
@@ -760,8 +851,57 @@ function renderDashboard() {
     postitContainer.appendChild(note);
   });
 
+  // Render Savings Goals
+  renderSavingsGoals();
+
   renderPieChart();
   updateInsightsWidget();
+}
+
+function renderSavingsGoals() {
+  savingsGoalsContainer.innerHTML = '';
+  const goals = appState.activeTracker.savingsGoals || [];
+
+  if (goals.length === 0) {
+    savingsGoalsContainer.innerHTML = '<p class="empty-msg" style="color: #94a3b8;">No savings goals added yet. Click "+ Add Savings Goal" to set one!</p>';
+    return;
+  }
+
+  goals.forEach(goal => {
+    const progressPercent = Math.min((goal.saved / goal.target) * 100, 100);
+
+    const goalCard = document.createElement('div');
+    goalCard.className = 'postit-note';
+    goalCard.style.borderColor = '#38bdf8';
+
+    goalCard.innerHTML = `
+      <div class="postit-header">
+        <span>🎯 ${goal.name}</span>
+        <button class="btn-delete-cat btn-del-goal" title="Delete Goal">✕</button>
+      </div>
+      <div class="postit-details">
+        <p><strong>Saved:</strong> $${goal.saved.toFixed(2)}</p>
+        <p><strong>Target:</strong> $${goal.target.toFixed(2)}</p>
+      </div>
+      <div class="battery-container" style="margin-top: 8px;">
+        <div class="battery-fill green" style="width: ${progressPercent}%;"></div>
+      </div>
+      <div class="battery-text" style="margin-bottom: 10px;">${progressPercent.toFixed(1)}% Reached</div>
+      <button class="btn-small btn-deposit" style="width: 100%;">+ Deposit Funds</button>
+    `;
+
+    goalCard.querySelector('.btn-del-goal').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteGoal(goal.id);
+    });
+
+    goalCard.querySelector('.btn-deposit').addEventListener('click', (e) => {
+      e.stopPropagation();
+      addFundsToGoal(goal.id);
+    });
+
+    savingsGoalsContainer.appendChild(goalCard);
+  });
 }
 
 // -------------------------------------------------------------
