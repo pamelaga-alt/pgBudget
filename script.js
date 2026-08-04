@@ -18,7 +18,7 @@ let appState = {
   settings: { lastUpdated: null }
 };
 
-let pieChartInstance = null; // Global reference for Chart.js instance
+let pieChartInstance = null;
 
 function getCurrentMonthYear() {
   const date = new Date();
@@ -212,17 +212,30 @@ function showMonthlySummaryModal(pastTracker) {
 
   let totalSpent = 0;
   let breakdownHtml = '<ul>';
-  
+  let reorderAdvice = [];
+
   pastTracker.categories.forEach(cat => {
     totalSpent += cat.spent;
-    breakdownHtml += `<li><strong>${cat.name}:</strong> Spent $${cat.spent.toFixed(2)} / $${cat.limit.toFixed(2)}</li>`;
+    const isOver = cat.spent > cat.limit;
+    const diff = cat.spent - cat.limit;
+
+    breakdownHtml += `<li><strong>${cat.name}:</strong> Spent $${cat.spent.toFixed(2)} / $${cat.limit.toFixed(2)} ${isOver ? `<span style="color:#ef4444;">(+$${diff.toFixed(2)} Over)</span>` : ''}</li>`;
+
+    if (isOver) {
+      reorderAdvice.push(`Increase <strong>${cat.name}</strong> limit by at least $${diff.toFixed(2)} next month.`);
+    }
   });
   breakdownHtml += '</ul>';
+
+  let adviceHtml = reorderAdvice.length > 0 
+    ? `<div style="margin-top:10px; border-top: 1px dashed #334155; padding-top:8px;"><strong>💡 Next Month Advice:</strong><br>${reorderAdvice.join('<br>')}</div>`
+    : `<div style="margin-top:10px; color:#10b981;"><strong>✅ Perfect Month!</strong> You stayed within all limits.</div>`;
 
   summaryReportDetails.innerHTML = `
     <p><strong>Total Spending:</strong> $${totalSpent.toFixed(2)} / $${pastTracker.totalBudget.toFixed(2)}</p>
     <br>
     ${breakdownHtml}
+    ${adviceHtml}
   `;
 
   modalMonthlySummary.classList.remove('hidden');
@@ -295,7 +308,6 @@ function renderSidebarHistory() {
 // -------------------------------------------------------------
 // 6. DASHBOARD & INTERACTION LOGIC
 // -------------------------------------------------------------
-// Quick-add additional earnings directly from Dashboard
 btnAddEarnings.addEventListener('click', () => {
   const extraEarnings = parseFloat(prompt("Enter additional earnings amount ($):"));
   if (!isNaN(extraEarnings) && extraEarnings > 0) {
@@ -365,33 +377,28 @@ btnAddExpense.addEventListener('click', () => {
   }
 });
 
-// DAY 5: Dynamic Chart.js Rendering
+// Dynamic Pie Chart with Percentage Tooltips & Unused Budget Slice
 function renderPieChart() {
   const tracker = appState.activeTracker;
   if (!tracker) return;
 
   const labels = tracker.categories.map(c => c.name);
   const data = tracker.categories.map(c => c.spent);
+
   const totalSpent = data.reduce((a, b) => a + b, 0);
+  const totalBudget = tracker.totalBudget || 1;
+  const unusedBudget = Math.max(0, totalBudget - totalSpent);
+
+  labels.push("Unused Budget");
+  data.push(unusedBudget);
 
   const ctx = document.getElementById('spendingPieChart').getContext('2d');
 
   if (pieChartInstance) {
-    pieChartInstance.destroy(); // Clear existing instance before redraw
+    pieChartInstance.destroy();
   }
 
-  if (totalSpent === 0) {
-    // Show placeholder if no expenses have been logged yet
-    pieChartInstance = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['No Expenditures Yet'],
-        datasets: [{ data: [1], backgroundColor: ['#334155'] }]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
-    return;
-  }
+  const chartSum = data.reduce((a, b) => a + b, 0);
 
   pieChartInstance = new Chart(ctx, {
     type: 'pie',
@@ -401,7 +408,7 @@ function renderPieChart() {
         data: data,
         backgroundColor: [
           '#f87171', '#38bdf8', '#fbbf24', '#34d399', 
-          '#a78bfa', '#f472b6', '#fb923c', '#4ade80'
+          '#a78bfa', '#f472b6', '#fb923c', '#4ade80', '#334155'
         ]
       }]
     },
@@ -411,13 +418,22 @@ function renderPieChart() {
         legend: {
           position: 'bottom',
           labels: { color: '#f8fafc' }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.parsed;
+              const percentage = ((value / chartSum) * 100).toFixed(1);
+              return `${context.label}: ${percentage}%`;
+            }
+          }
         }
       }
     }
   });
 }
 
-// DAY 6: Automated Insights / Sticky Note Calculation
+// Automated Insights & Smart Budget Reordering Advice
 function updateInsightsWidget() {
   insightsList.innerHTML = '';
   const tracker = appState.activeTracker;
@@ -426,10 +442,11 @@ function updateInsightsWidget() {
   const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
 
   if (totalSpent === 0) {
-    insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns!</li>';
+    insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns and advice!</li>';
     return;
   }
 
+  // Percentage distribution notes
   tracker.categories.forEach(cat => {
     if (cat.spent > 0) {
       const percentage = ((cat.spent / totalSpent) * 100).toFixed(1);
@@ -438,6 +455,44 @@ function updateInsightsWidget() {
       insightsList.appendChild(li);
     }
   });
+
+  // Overspending & Budget Reordering Advice Engine
+  const overspentCats = [];
+  const underspentCats = [];
+
+  tracker.categories.forEach(cat => {
+    const difference = cat.limit - cat.spent;
+    if (difference < 0) {
+      overspentCats.push({ name: cat.name, deficit: Math.abs(difference) });
+    } else if (difference > 0) {
+      underspentCats.push({ name: cat.name, surplus: difference });
+    }
+  });
+
+  if (overspentCats.length === 0) {
+    const li = document.createElement('li');
+    li.style.marginTop = "8px";
+    li.innerHTML = `✅ <strong>Great job!</strong> You are within budget for all categories.`;
+    insightsList.appendChild(li);
+  } else {
+    overspentCats.forEach(over => {
+      const warningLi = document.createElement('li');
+      warningLi.style.marginTop = "8px";
+      warningLi.innerHTML = `⚠️ <strong>Overspent:</strong> You went over budget in <em>${over.name}</em> by <strong>$${over.deficit.toFixed(2)}</strong>.`;
+      insightsList.appendChild(warningLi);
+
+      underspentCats.forEach(under => {
+        if (under.surplus > 0) {
+          const moveAmount = Math.min(over.deficit, under.surplus);
+          const adviceLi = document.createElement('li');
+          adviceLi.style.listStyleType = "none";
+          adviceLi.style.paddingLeft = "10px";
+          adviceLi.innerHTML = `💡 <em>Reorder Suggestion:</em> Move <strong>$${moveAmount.toFixed(2)}</strong> from <strong>${under.name}</strong> to cover <strong>${over.name}</strong>.`;
+          insightsList.appendChild(adviceLi);
+        }
+      });
+    });
+  }
 }
 
 function renderDashboard() {
