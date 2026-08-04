@@ -412,3 +412,49 @@ button:hover {
 .modal-buttons.vertical {
   flex-direction: column;
 }
+/* --- Chart.js Canvas Styling --- */
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 1rem auto;
+}
+
+/* --- Inline Add Earnings Button --- */
+.btn-inline-add {
+  display: inline-block;
+  width: auto;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  margin-left: 6px;
+  background-color: #10b981;
+}
+
+.btn-inline-add:hover {
+  background-color: #059669;
+}
+
+/* --- Insight Sticky Note Widget --- */
+.postit-note.insight-note {
+  background-color: #bae6fd; /* Post-it Light Blue */
+  max-width: 100%;
+  transform: rotate(0deg);
+  min-height: auto;
+  margin: 1rem 0;
+}
+
+.postit-note.insight-note:hover {
+  transform: scale(1.01);
+}
+
+.insights-list {
+  list-style: square;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  color: #0f172a;
+  margin-top: 5px;
+}
+
+.insights-list li {
+  margin-bottom: 4px;
+}
