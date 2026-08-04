@@ -111,12 +111,20 @@ button {
   justify-content: center;
 }
 
-/* HEADER & METRICS */
+/* HEADER & METRICS - CENTERED TITLE */
 .dash-header {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
   margin-bottom: 24px;
+  width: 100%;
+}
+
+.dash-header h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f8fafc;
 }
 
 .metrics-row {
@@ -340,7 +348,7 @@ button {
   line-height: 1.4;
 }
 
-/* FLOATING ACTION BUTTON (FAB) */
+/* FLOATING ACTION BUTTONS (FAB) */
 .fab-container {
   position: fixed;
   bottom: 30px;
@@ -349,6 +357,16 @@ button {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
+  z-index: 100;
+}
+
+.fab-container-left {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   z-index: 100;
 }
 
@@ -367,6 +385,24 @@ button {
 
 .fab-main-btn:hover {
   background-color: #4f46e5;
+  transform: scale(1.05);
+}
+
+.fab-main-btn-secondary {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #334155;
+  color: #ffffff;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab-main-btn-secondary:hover {
+  background-color: #475569;
   transform: scale(1.05);
 }
 
