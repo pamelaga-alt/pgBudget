@@ -57,7 +57,7 @@ function loadStateFromLocalStorage() {
 loadStateFromLocalStorage();
 
 // -------------------------------------------------------------
-// 2. DOM ELEMENTS
+// 2. DOM ELEMENTS & CUSTOM MODAL CONFIRMATION HELPER
 // -------------------------------------------------------------
 const page1 = document.getElementById('page-1');
 const page2 = document.getElementById('page-2');
@@ -103,6 +103,7 @@ const btnFabAddCat = document.getElementById('btn-fab-add-cat');
 const btnFabAddGoal = document.getElementById('btn-fab-add-goal');
 
 // Modals
+const modalConfirm = document.getElementById('modal-confirm');
 const modalAddEarnings = document.getElementById('modal-add-earnings');
 const inputEarningsAmount = document.getElementById('input-earnings-amount');
 const btnSaveEarnings = document.getElementById('btn-save-earnings');
@@ -142,6 +143,31 @@ let configuredCategories = [];
 function navigateTo(targetPage) {
   [page1, page2, pageDashboard].forEach(page => page.classList.add('hidden'));
   targetPage.classList.remove('hidden');
+}
+
+// CUSTOM MODAL CONFIRMATION PROMPT
+function showConfirmModal(message, onConfirm) {
+  const msgEl = document.getElementById('confirm-modal-msg');
+  const btnYes = document.getElementById('btn-confirm-yes');
+  const btnNo = document.getElementById('btn-confirm-no');
+
+  msgEl.textContent = message;
+  modalConfirm.classList.remove('hidden');
+
+  const cleanup = () => {
+    modalConfirm.classList.add('hidden');
+    btnYes.replaceWith(btnYes.cloneNode(true));
+    btnNo.replaceWith(btnNo.cloneNode(true));
+  };
+
+  document.getElementById('btn-confirm-yes').onclick = () => {
+    cleanup();
+    onConfirm();
+  };
+
+  document.getElementById('btn-confirm-no').onclick = () => {
+    cleanup();
+  };
 }
 
 // -------------------------------------------------------------
@@ -491,11 +517,14 @@ function addFundsToGoal(goalId) {
 }
 
 function deleteGoal(goalId) {
-  if (confirm("Are you sure you want to delete this savings goal?")) {
+  const goal = appState.activeTracker.savingsGoals.find(g => g.id === goalId);
+  if (!goal) return;
+
+  showConfirmModal(`Are you sure you want to delete the "${goal.name}" savings goal?`, () => {
     appState.activeTracker.savingsGoals = appState.activeTracker.savingsGoals.filter(g => g.id !== goalId);
     saveStateToLocalStorage();
     renderDashboard();
-  }
+  });
 }
 
 btnAddExpense.addEventListener('click', () => {
@@ -531,12 +560,12 @@ function deleteCategory(catId) {
   const category = appState.activeTracker.categories.find(c => c.id === catId);
   if (!category) return;
 
-  if (confirm(`Are you sure you want to delete the "${category.name}" category and its logged expenses?`)) {
+  showConfirmModal(`Are you sure you want to delete "${category.name}" and all its logged expenses?`, () => {
     appState.activeTracker.categories = appState.activeTracker.categories.filter(c => c.id !== catId);
     openHistoryCards.delete(catId);
     saveStateToLocalStorage();
     renderDashboard();
-  }
+  });
 }
 
 function deleteExpense(catId, expenseId) {
@@ -545,11 +574,13 @@ function deleteExpense(catId, expenseId) {
 
   const expenseIdx = category.history.findIndex(h => h.id === expenseId);
   if (expenseIdx > -1) {
-    const removedExpense = category.history.splice(expenseIdx, 1)[0];
-    category.spent = Math.max(0, category.spent - removedExpense.amount);
+    showConfirmModal("Delete this transaction entry?", () => {
+      const removedExpense = category.history.splice(expenseIdx, 1)[0];
+      category.spent = Math.max(0, category.spent - removedExpense.amount);
 
-    saveStateToLocalStorage();
-    renderDashboard();
+      saveStateToLocalStorage();
+      renderDashboard();
+    });
   }
 }
 
@@ -611,19 +642,35 @@ btnSaveEditExpense.addEventListener('click', (e) => {
 
 function renderPieChart() {
   const tracker = appState.activeTracker;
+  const canvas = document.getElementById('spendingPieChart');
+  const emptyState = document.getElementById('chart-empty-state');
+
   if (!tracker) return;
+
+  const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
+
+  // EMPTY STATE GRAPHIC CHECK
+  if (totalSpent === 0) {
+    canvas.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    if (pieChartInstance) pieChartInstance.destroy();
+    return;
+  }
+
+  // Show Chart, hide empty state
+  canvas.classList.remove('hidden');
+  emptyState.classList.add('hidden');
 
   const labels = tracker.categories.map(c => c.name);
   const data = tracker.categories.map(c => c.spent);
 
-  const totalSpent = data.reduce((a, b) => a + b, 0);
   const totalBudget = tracker.totalBudget || 1;
   const unusedBudget = Math.max(0, totalBudget - totalSpent);
 
   labels.push("Unused Budget");
   data.push(unusedBudget);
 
-  const ctx = document.getElementById('spendingPieChart').getContext('2d');
+  const ctx = canvas.getContext('2d');
 
   if (pieChartInstance) {
     pieChartInstance.destroy();
@@ -882,7 +929,6 @@ function renderSavingsGoals() {
 
     const goalCard = document.createElement('div');
     goalCard.className = 'postit-note';
-    goalCard.style.borderTopColor = '#38bdf8';
 
     goalCard.innerHTML = `
       <div class="postit-header">
