@@ -98,12 +98,20 @@ const btnExportCSV = document.getElementById('btn-export-csv');
 // FAB Elements
 const btnFabMain = document.getElementById('btn-fab-main');
 const fabOptions = document.getElementById('fab-options');
+const btnFabEditBudget = document.getElementById('btn-fab-edit-budget');
 const btnFabAddEarnings = document.getElementById('btn-fab-add-earnings');
 const btnFabAddCat = document.getElementById('btn-fab-add-cat');
 const btnFabAddGoal = document.getElementById('btn-fab-add-goal');
 
 // Modals
 const modalConfirm = document.getElementById('modal-confirm');
+
+const modalEditBudget = document.getElementById('modal-edit-budget');
+const editTrackerName = document.getElementById('edit-tracker-name');
+const editTotalBudget = document.getElementById('edit-total-budget');
+const btnSaveEditBudget = document.getElementById('btn-save-edit-budget');
+const btnCloseEditBudgetModal = document.getElementById('btn-close-edit-budget-modal');
+
 const modalAddEarnings = document.getElementById('modal-add-earnings');
 const inputEarningsAmount = document.getElementById('input-earnings-amount');
 const btnSaveEarnings = document.getElementById('btn-save-earnings');
@@ -400,6 +408,34 @@ btnFabMain.addEventListener('click', () => {
   fabOptions.classList.toggle('hidden');
 });
 
+btnFabEditBudget.addEventListener('click', () => {
+  fabOptions.classList.add('hidden');
+  editTrackerName.value = appState.activeTracker.name;
+  editTotalBudget.value = appState.activeTracker.totalBudget;
+  modalEditBudget.classList.remove('hidden');
+});
+
+btnCloseEditBudgetModal.addEventListener('click', () => {
+  modalEditBudget.classList.add('hidden');
+});
+
+btnSaveEditBudget.addEventListener('click', () => {
+  const newName = editTrackerName.value.trim();
+  const newBudget = parseFloat(editTotalBudget.value);
+
+  if (!newName || isNaN(newBudget) || newBudget <= 0) {
+    alert("Please enter a valid tracker name and budget ceiling.");
+    return;
+  }
+
+  appState.activeTracker.name = newName;
+  appState.activeTracker.totalBudget = newBudget;
+
+  saveStateToLocalStorage();
+  modalEditBudget.classList.add('hidden');
+  renderDashboard();
+});
+
 btnFabAddEarnings.addEventListener('click', () => {
   fabOptions.classList.add('hidden');
   inputEarningsAmount.value = '';
@@ -546,7 +582,7 @@ btnAddExpense.addEventListener('click', () => {
       id: `expense_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       item: noteText,
       amount: amount,
-      date: new Date().toLocaleDateString() // Changed from time to date
+      date: new Date().toLocaleDateString()
     });
 
     saveStateToLocalStorage();
