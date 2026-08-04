@@ -58,14 +58,12 @@ const btnNewTracker = document.getElementById('btn-new-tracker');
 const btnOldTracker = document.getElementById('btn-old-tracker');
 const btnBackHome = document.getElementById('btn-back-home');
 
-// Feature 3: Lump-Sum Elements
 const isLumpSumCheck = document.getElementById('is-lump-sum-check');
 const lumpSumCalculator = document.getElementById('lump-sum-calculator');
 const lumpSumAmount = document.getElementById('lump-sum-amount');
 const lumpSumMonths = document.getElementById('lump-sum-months');
 const btnCalcLumpSum = document.getElementById('btn-calc-lump-sum');
 
-// Setup Form Elements
 const setupForm = document.getElementById('setup-form');
 const totalBudgetInput = document.getElementById('total-budget');
 const categorySelect = document.getElementById('category-select');
@@ -76,7 +74,6 @@ const isCategoryRecurring = document.getElementById('is-category-recurring');
 const btnAddCategory = document.getElementById('btn-add-category');
 const activeCategoriesList = document.getElementById('active-categories');
 
-// Dashboard Elements
 const dashTrackerName = document.getElementById('dash-tracker-name');
 const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
@@ -89,7 +86,6 @@ const btnAddExpense = document.getElementById('btn-add-expense');
 const insightsList = document.getElementById('insights-list');
 const btnExportCSV = document.getElementById('btn-export-csv');
 
-// Modal Elements
 const btnFloatingAddCat = document.getElementById('btn-floating-add-cat');
 const modalAddCategory = document.getElementById('modal-add-category');
 const btnSaveModalCat = document.getElementById('btn-save-modal-cat');
@@ -98,20 +94,17 @@ const dashNewCatName = document.getElementById('dash-new-cat-name');
 const dashNewCatLimit = document.getElementById('dash-new-cat-limit');
 const dashNewCatRecurring = document.getElementById('dash-new-cat-recurring');
 
-// Sidebar History Elements
 const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const btnCloseSidebar = document.getElementById('btn-close-sidebar');
 const sidebarHistory = document.getElementById('sidebar-history');
 const historyListContainer = document.getElementById('history-list-container');
 
-// Monthly Summary Modal
 const modalMonthlySummary = document.getElementById('modal-monthly-summary');
 const summaryMonthName = document.getElementById('summary-month-name');
 const summaryReportDetails = document.getElementById('summary-report-details');
 const btnKeepBudget = document.getElementById('btn-keep-budget');
 const btnNewBudget = document.getElementById('btn-new-budget');
 
-// Advice Modal
 const btnToggleAdvice = document.getElementById('btn-toggle-advice');
 const modalAdvice = document.getElementById('modal-advice');
 const adviceContent = document.getElementById('advice-content');
@@ -150,7 +143,6 @@ btnBackHome.addEventListener('click', () => {
   navigateTo(page1);
 });
 
-// Feature 3: Lump-Sum Calculation Handler
 isLumpSumCheck.addEventListener('change', (e) => {
   if (e.target.checked) {
     lumpSumCalculator.classList.remove('hidden');
@@ -179,7 +171,6 @@ categorySelect.addEventListener('change', (e) => {
   }
 });
 
-// Feature 1: Category Setup with Recurring Flag
 btnAddCategory.addEventListener('click', () => {
   let categoryName = categorySelect.value;
   const amount = parseFloat(categoryAmountInput.value);
@@ -411,6 +402,7 @@ btnAddExpense.addEventListener('click', () => {
     if (!category.history) category.history = [];
     
     category.history.push({
+      id: `expense_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       item: noteText,
       amount: amount,
       date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -423,7 +415,60 @@ btnAddExpense.addEventListener('click', () => {
   }
 });
 
-// Dynamic Pie Chart
+// Category Deletion
+function deleteCategory(catId) {
+  const category = appState.activeTracker.categories.find(c => c.id === catId);
+  if (!category) return;
+
+  if (confirm(`Are you sure you want to delete the "${category.name}" category and its logged expenses?`)) {
+    appState.activeTracker.categories = appState.activeTracker.categories.filter(c => c.id !== catId);
+    openHistoryCards.delete(catId);
+    saveStateToLocalStorage();
+    renderDashboard();
+  }
+}
+
+// Transaction Logging Actions: Delete & Edit
+function deleteExpense(catId, expenseId) {
+  const category = appState.activeTracker.categories.find(c => c.id === catId);
+  if (!category || !category.history) return;
+
+  const expenseIdx = category.history.findIndex(h => h.id === expenseId);
+  if (expenseIdx > -1) {
+    const removedExpense = category.history.splice(expenseIdx, 1)[0];
+    category.spent = Math.max(0, category.spent - removedExpense.amount);
+
+    saveStateToLocalStorage();
+    renderDashboard();
+  }
+}
+
+function editExpense(catId, expenseId) {
+  const category = appState.activeTracker.categories.find(c => c.id === catId);
+  if (!category || !category.history) return;
+
+  const expense = category.history.find(h => h.id === expenseId);
+  if (!expense) return;
+
+  const newNote = prompt("Edit item description:", expense.item);
+  if (newNote === null) return;
+
+  const newAmountStr = prompt("Edit amount ($):", expense.amount);
+  const newAmount = parseFloat(newAmountStr);
+
+  if (isNaN(newAmount) || newAmount <= 0) {
+    alert("Please enter a valid amount.");
+    return;
+  }
+
+  category.spent = Math.max(0, (category.spent - expense.amount) + newAmount);
+  expense.item = newNote.trim() || "Uncategorized Expense";
+  expense.amount = newAmount;
+
+  saveStateToLocalStorage();
+  renderDashboard();
+}
+
 function renderPieChart() {
   const tracker = appState.activeTracker;
   if (!tracker) return;
@@ -479,7 +524,6 @@ function renderPieChart() {
   });
 }
 
-// Insights & Advice Modal Trigger
 function updateInsightsWidget() {
   insightsList.innerHTML = '';
   const tracker = appState.activeTracker;
@@ -574,43 +618,92 @@ function renderDashboard() {
     note.className = 'postit-note';
 
     const isHistoryOpen = openHistoryCards.has(cat.id);
-
-    let historyHtml = '';
-    if (isHistoryOpen) {
-      const logs = cat.history && cat.history.length > 0
-        ? cat.history.map(h => `<li><span>${h.date} - ${h.item}</span> <strong>+$${h.amount.toFixed(2)}</strong></li>`).join('')
-        : '<li><em>No logs recorded yet</em></li>';
-
-      historyHtml = `
-        <div class="history-section">
-          <strong>Transaction Log:</strong>
-          <ul class="history-list">${logs}</ul>
-        </div>
-      `;
-    }
-
-    // Feature 1 Display Badge: Recurring vs Variable
     const icon = cat.isRecurring ? '🔄' : '📌';
 
-    note.innerHTML = `
-      <div>
-        <div class="postit-header">${icon} ${cat.name}</div>
-        <div class="postit-details">
-          <p><strong>Spent:</strong> $${cat.spent.toFixed(2)}</p>
-          <p><strong>Limit:</strong> $${cat.limit.toFixed(2)}</p>
-        </div>
-      </div>
-      
-      <div>
-        <div class="battery-container">
-          <div class="battery-fill ${colorClass}" style="width: ${cappedWidth}%;"></div>
-        </div>
-        <div class="battery-text">${fillPercent.toFixed(1)}% Used</div>
-        ${historyHtml}
-        <div class="history-hint">${isHistoryOpen ? '▲ Hide history' : '▼ View history'}</div>
+    // Header Element with Delete Button
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'postit-header';
+    headerDiv.innerHTML = `<span>${icon} ${cat.name}</span>`;
+
+    const btnDeleteCat = document.createElement('button');
+    btnDeleteCat.className = 'btn-delete-cat';
+    btnDeleteCat.title = 'Delete Category';
+    btnDeleteCat.textContent = '✕';
+    btnDeleteCat.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteCategory(cat.id);
+    });
+
+    headerDiv.appendChild(btnDeleteCat);
+
+    // Body Element
+    const bodyDiv = document.createElement('div');
+    bodyDiv.innerHTML = `
+      <div class="postit-details">
+        <p><strong>Spent:</strong> $${cat.spent.toFixed(2)}</p>
+        <p><strong>Limit:</strong> $${cat.limit.toFixed(2)}</p>
       </div>
     `;
 
+    // Footer Element with History Logs & Actions
+    const footerDiv = document.createElement('div');
+    let historySectionHtml = '';
+
+    if (isHistoryOpen) {
+      const historyContainer = document.createElement('div');
+      historyContainer.className = 'history-section';
+      historyContainer.innerHTML = '<strong>Transaction Log:</strong>';
+
+      const historyUl = document.createElement('ul');
+      historyUl.className = 'history-list';
+
+      if (cat.history && cat.history.length > 0) {
+        cat.history.forEach(h => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span>${h.date} - ${h.item}</span>
+            <span class="action-span">
+              <strong>+$${h.amount.toFixed(2)}</strong>
+              <button class="btn-icon-action btn-edit-exp" title="Edit">✏️</button>
+              <button class="btn-icon-action btn-del-exp" title="Delete">✕</button>
+            </span>
+          `;
+
+          li.querySelector('.btn-edit-exp').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editExpense(cat.id, h.id);
+          });
+
+          li.querySelector('.btn-del-exp').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteExpense(cat.id, h.id);
+          });
+
+          historyUl.appendChild(li);
+        });
+      } else {
+        historyUl.innerHTML = '<li><em>No logs recorded yet</em></li>';
+      }
+
+      historyContainer.appendChild(historyUl);
+      footerDiv.appendChild(historyContainer);
+    }
+
+    const batteryDiv = document.createElement('div');
+    batteryDiv.innerHTML = `
+      <div class="battery-container" style="margin-top: 8px;">
+        <div class="battery-fill ${colorClass}" style="width: ${cappedWidth}%;"></div>
+      </div>
+      <div class="battery-text">${fillPercent.toFixed(1)}% Used</div>
+      <div class="history-hint">${isHistoryOpen ? '▲ Hide history' : '▼ View history'}</div>
+    `;
+    footerDiv.appendChild(batteryDiv);
+
+    note.appendChild(headerDiv);
+    note.appendChild(bodyDiv);
+    note.appendChild(footerDiv);
+
+    // Expand/Collapse Toggle
     note.addEventListener('click', () => {
       if (openHistoryCards.has(cat.id)) {
         openHistoryCards.delete(cat.id);
