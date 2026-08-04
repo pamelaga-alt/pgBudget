@@ -116,8 +116,6 @@ const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
 
 // Edit Expense Modal Elements
 const modalEditExpense = document.getElementById('modal-edit-expense');
-const editExpenseNote = document.getElementById('edit-expense-note');
-const editExpenseAmount = document.getElementById('edit-expense-amount');
 const btnSaveEditExpense = document.getElementById('btn-save-edit-expense');
 const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
 
@@ -465,21 +463,24 @@ function editExpense(catId, expenseId) {
   currentEditingCatId = catId;
   currentEditingExpenseId = expenseId;
 
-  editExpenseNote.value = expense.item;
-  editExpenseAmount.value = expense.amount;
+  document.getElementById('edit-expense-note').value = expense.item;
+  document.getElementById('edit-expense-amount').value = expense.amount;
 
   modalEditExpense.classList.remove('hidden');
 }
 
 // Close Edit Expense Modal
-btnCloseEditModal.addEventListener('click', () => {
+btnCloseEditModal.addEventListener('click', (e) => {
+  e.preventDefault();
   modalEditExpense.classList.add('hidden');
   currentEditingCatId = null;
   currentEditingExpenseId = null;
 });
 
 // Save Edited Expense Details
-btnSaveEditExpense.addEventListener('click', () => {
+btnSaveEditExpense.addEventListener('click', (e) => {
+  e.preventDefault();
+
   if (!currentEditingCatId || !currentEditingExpenseId) return;
 
   const category = appState.activeTracker.categories.find(c => c.id === currentEditingCatId);
@@ -488,15 +489,21 @@ btnSaveEditExpense.addEventListener('click', () => {
   const expense = category.history.find(h => h.id === currentEditingExpenseId);
   if (!expense) return;
 
-  const newNote = editExpenseNote.value.trim() || "Uncategorized Expense";
-  const newAmount = parseFloat(editExpenseAmount.value);
+  const noteInput = document.getElementById('edit-expense-note');
+  const amountInput = document.getElementById('edit-expense-amount');
+
+  const newNote = noteInput.value.trim() || "Uncategorized Expense";
+  const newAmount = parseFloat(amountInput.value);
 
   if (isNaN(newAmount) || newAmount <= 0) {
-    alert("Please enter a valid spending amount.");
+    alert("Please enter a valid spending amount greater than $0.");
     return;
   }
 
+  // Adjust overall category spent balance
   category.spent = Math.max(0, (category.spent - expense.amount) + newAmount);
+  
+  // Update transaction record
   expense.item = newNote;
   expense.amount = newAmount;
 
