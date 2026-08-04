@@ -640,22 +640,30 @@ function renderPieChart() {
         backgroundColor: [
           '#f87171', '#38bdf8', '#fbbf24', '#34d399', 
           '#a78bfa', '#f472b6', '#fb923c', '#4ade80', '#334155'
-        ]
+        ],
+        borderWidth: 2,
+        borderColor: '#1e293b'
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: '#f8fafc' }
+          labels: { 
+            color: '#f8fafc',
+            boxWidth: 12,
+            padding: 12,
+            font: { size: 11 }
+          }
         },
         tooltip: {
           callbacks: {
             label: function(context) {
               const value = context.parsed;
-              const percentage = ((value / chartSum) * 100).toFixed(1);
-              return `${context.label}: ${percentage}%`;
+              const percentage = chartSum > 0 ? ((value / chartSum) * 100).toFixed(1) : 0;
+              return `${context.label}: $${value.toFixed(2)} (${percentage}%)`;
             }
           }
         }
@@ -874,7 +882,7 @@ function renderSavingsGoals() {
 
     const goalCard = document.createElement('div');
     goalCard.className = 'postit-note';
-    goalCard.style.borderColor = '#38bdf8';
+    goalCard.style.borderTopColor = '#38bdf8';
 
     goalCard.innerHTML = `
       <div class="postit-header">
