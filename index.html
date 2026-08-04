@@ -1,234 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Budget Tracker</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
 
-    <section id="page-1" class="screen">
-      <h1>Budget Tracker</h1>
-      <p>Track all your spending right here! Plus, manage your categories and get monthly reports!</p>
-      <div class="button-group">
-        <button id="btn-new-tracker"> New Tracker</button>
-        <button id="btn-old-tracker"> Continue To Existing Tracker</button>
+  <section id="page-1" class="page-container">
+    <div class="hero-card">
+      <h1>💰 Monthly Budget Tracker</h1>
+      <p>Take control of your spending with custom limits, transaction logs, and visual insights.</p>
+      <div class="landing-buttons">
+        <button id="btn-new-tracker" class="btn-primary">Create New Budget Tracker</button>
+        <button id="btn-old-tracker" class="btn-secondary">Open Existing Tracker</button>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="page-2" class="screen hidden">
-      <h2>Set Up Your Budget</h2>
+  <section id="page-2" class="page-container hidden">
+    <div class="form-card">
+      <button id="btn-back-home" class="btn-text">← Back to Home</button>
+      <h2>⚙️ Set Up Your Budget</h2>
       <form id="setup-form">
         <div class="input-group">
           <label for="tracker-name">Tracker Name:</label>
           <input type="text" id="tracker-name" placeholder="e.g. Fall Semester Budget" required>
         </div>
 
-        <div class="input-group">
-          <label class="checkbox-label">
-            <input type="checkbox" id="is-lump-sum-check">
-            <span>Receiving Financial Aid or Lump-Sum Income?</span>
-          </label>
+        <div class="input-group checkbox-group">
+          <input type="checkbox" id="is-lump-sum-check">
+          <label for="is-lump-sum-check">Calculate monthly ceiling from a lump sum?</label>
         </div>
 
-        <div id="lump-sum-calculator" class="input-group hidden calc-box">
-          <label for="lump-sum-amount">Total Lump Sum ($):</label>
-          <input type="number" id="lump-sum-amount" placeholder="e.g. 4000">
-          
-          <label for="lump-sum-months" style="margin-top:8px;">Months in Semester/Period:</label>
-          <input type="number" id="lump-sum-months" value="4" min="1" max="12">
-          
-          <button type="button" id="btn-calc-lump-sum" class="btn-secondary" style="margin-top:8px;">Calculate Monthly Allowance</button>
-        </div>
-
-        <div class="input-group">
-          <label for="total-budget">Overall Monthly Budget Ceiling ($):</label>
-          <input type="number" id="total-budget" min="0" placeholder="e.g. 1000" required>
+        <div id="lump-sum-calculator" class="hidden">
+          <div class="input-group">
+            <label for="lump-sum-amount">Lump Sum Amount ($):</label>
+            <input type="number" id="lump-sum-amount" step="0.01" placeholder="e.g. 3000">
+          </div>
+          <div class="input-group">
+            <label for="lump-sum-months">Number of Months:</label>
+            <input type="number" id="lump-sum-months" min="1" placeholder="e.g. 4">
+          </div>
+          <button type="button" id="btn-calc-lump-sum" class="btn-secondary">Calculate Monthly Limit</button>
         </div>
 
         <div class="input-group">
-          <label for="total-earnings">Total Estimated Additional Monthly Earnings ($):</label>
-          <input type="number" id="total-earnings" min="0" placeholder="e.g. 200 (optional)">
-        </div>
-
-        <hr class="divider">
-
-        <h3>Add Category Budgets</h3>
-        <div class="input-group">
-          <label for="category-select">Category:</label>
-          <select id="category-select">
-            <option value="" disabled selected>Select Category</option>
-            <option value="School">School</option>
-            <option value="Friends">Friends</option>
-            <option value="Food">Food</option>
-            <option value="Going Out">Going Out</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div class="input-group hidden" id="custom-category-group">
-          <label for="custom-category-name">Custom Category Name:</label>
-          <input type="text" id="custom-category-name" placeholder="e.g. Subscriptions">
+          <label for="total-budget">Total Monthly Budget ($):</label>
+          <input type="number" id="total-budget" step="0.01" placeholder="e.g. 750.00" required>
         </div>
 
         <div class="input-group">
-          <label for="category-amount">Category Budget Limit ($):</label>
-          <input type="number" id="category-amount" min="0" placeholder="e.g. 150">
+          <label for="total-earnings">Expected Monthly Earnings ($):</label>
+          <input type="number" id="total-earnings" step="0.01" placeholder="e.g. 500.00">
         </div>
 
-        <div class="input-group">
-          <label class="checkbox-label">
+        <hr>
+        <h3>Categories</h3>
+        <div class="category-builder">
+          <div class="input-group">
+            <label for="category-select">Category Name:</label>
+            <select id="category-select">
+              <option value="" disabled selected>Select or choose Other</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Rent">Rent</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Dining Out">Dining Out</option>
+
+              <option value="Other">Other (Custom)</option>
+            </select>
+          </div>
+
+          <div id="custom-category-group" class="input-group hidden">
+            <label for="custom-category-name">Custom Category Name:</label>
+            <input type="text" id="custom-category-name" placeholder="e.g. Books & Supplies">
+          </div>
+
+          <div class="input-group">
+            <label for="category-amount">Category Limit ($):</label>
+            <input type="number" id="category-amount" step="0.01" placeholder="e.g. 150.00">
+          </div>
+
+          <div class="input-group checkbox-group">
             <input type="checkbox" id="is-category-recurring">
-            <span>Fixed Recurring Bill? (e.g. Rent, Spotify, Wifi)</span>
-          </label>
+            <label for="is-category-recurring">Is this a recurring monthly bill?</label>
+          </div>
+
+          <button type="button" id="btn-add-category" class="btn-secondary">+ Add Category</button>
         </div>
 
-        <button type="button" id="btn-add-category" class="btn-secondary">+ Add Category</button>
+        <ul id="active-categories" class="category-list"></ul>
 
-        <div id="category-list-container">
-          <h4>Configured Categories:</h4>
-          <ul id="active-categories"></ul>
-        </div>
-
-        <button type="submit" id="btn-to-dashboard" class="btn-submit">Save & Go to Dashboard</button>
+        <button type="submit" class="btn-submit">Start Tracking!</button>
       </form>
-    </section>
+    </div>
+  </section>
 
-    <section id="page-dashboard" class="screen hidden">
-      <div id="modal-edit-expense" class="modal-overlay hidden">
-        <div class="modal-content">
-          <h3>✏️ Edit Transaction</h3>
-          <div class="input-group">
-            <label for="edit-expense-note">Description:</label>
-            <input type="text" id="edit-expense-note" placeholder="e.g. Groceries">
-          </div>
-          <div class="input-group">
-            <label for="edit-expense-amount">Amount ($):</label>
-            <input type="number" id="edit-expense-amount" min="0" step="0.01" placeholder="e.g. 20.00">
-          </div>
-          <div class="modal-buttons">
-            <button id="btn-save-edit-expense" class="btn-submit">Save Changes</button>
-            <button id="btn-close-edit-modal" class="btn-secondary">Cancel</button>
-          </div>
-        </div>
+  <section id="page-dashboard" class="page-container hidden">
+    <header class="dash-header">
+      <h2 id="dash-tracker-name">My Dashboard</h2>
+      <div class="header-actions">
+        <button id="btn-toggle-advice" class="btn-secondary">💡 Insights & Advice</button>
+        <button id="btn-export-csv" class="btn-secondary">📥 Export CSV</button>
+        <button id="btn-toggle-sidebar" class="btn-secondary">📜 History</button>
       </div>
-      <div class="dashboard-header">
-        <h2 id="dash-tracker-name">Dashboard</h2>
-        <button id="btn-toggle-sidebar" class="sidebar-toggle-btn">📂 History</button>
+    </header>
+
+    <div class="metrics-row">
+      <div class="metric-card">
+        <h3>Total Budget</h3>
+        <p>$<span id="dash-total-budget">0.00</span></p>
       </div>
-      
-      <div id="dash-summary">
-        <p><strong>Total Monthly Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
-        <p>
-          <strong>Earnings:</strong> $<span id="dash-earnings">0.00</span>
-          <button id="btn-add-earnings" class="btn-inline-add" title="Add Earnings">+</button>
-        </p>
+      <div class="metric-card">
+        <h3>Total Earnings</h3>
+        <p>$<span id="dash-earnings">0.00</span></p>
+        <button id="btn-add-earnings" class="btn-small">+ Add Earnings</button>
       </div>
+    </div>
 
-      <hr class="divider">
+    <div class="action-bar" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button id="btn-floating-add-cat" class="btn-primary">+ Add New Category</button>
+      <button id="btn-floating-add-goal" class="btn-secondary">🎯 Add Savings Goal</button>
+    </div>
 
-      <div class="add-expense-box">
-        <h3>Log New Spending</h3>
-        <div class="expense-inputs">
-          <select id="expense-category-select">
-            <option value="" disabled selected>Select Category</option>
-          </select>
-          <input type="text" id="expense-note-input" placeholder="What was it for? (e.g. Groceries)">
-          <input type="number" id="expense-amount-input" min="0" step="0.01" placeholder="Amount ($)">
-          <button id="btn-add-expense" class="btn-submit">+ Log Spending</button>
-        </div>
+    <div class="dashboard-controls" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+      <input type="text" id="input-search-expenses" placeholder="🔍 Search notes (e.g. Trader Joe's)..." style="flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white;">
+      <select id="select-filter-category" style="padding: 10px 14px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white;">
+        <option value="ALL">All Categories</option>
+      </select>
+    </div>
+
+    <div class="card-section">
+      <h3>💸 Log a New Expense</h3>
+      <div class="expense-inputs">
+        <select id="expense-category-select"></select>
+        <input type="text" id="expense-note-input" placeholder="Expense description (e.g. Coffee)">
+        <input type="number" id="expense-amount-input" step="0.01" placeholder="Amount ($)">
+        <button id="btn-add-expense" class="btn-submit">Log Expense</button>
       </div>
+    </div>
 
-      <hr class="divider">
+    <h3>📌 Spending Categories</h3>
+    <div id="postit-container" class="postit-grid"></div>
 
-      <h3>Categories</h3>
-      <div id="postit-container" class="postit-grid"></div>
+    <h3 style="margin-top: 30px;">🎯 Savings Goals</h3>
+    <div id="savings-goals-container" class="postit-grid"></div>
 
-      <hr class="divider">
-
-      <h3>Automated Insights & Recommendations</h3>
-      <div id="insights-container" class="insight-card">
-        <div class="insight-header">💡 Budget Analysis & Advice</div>
-        
-        <ul id="insights-list" class="insights-list"></ul>
-
-        <button id="btn-toggle-advice" class="btn-advice-corner" title="View Detailed Advice">❗ Detailed Advice</button>
-      </div>
-
-      <hr class="divider">
-
-      <h3>Spending & Remaining Budget Breakdown</h3>
-      <div class="chart-container">
+    <div class="insights-grid" style="margin-top: 30px;">
+      <div class="card-section">
+        <h3>📊 Spending Breakdown</h3>
         <canvas id="spendingPieChart"></canvas>
       </div>
-
-      <div class="dashboard-actions">
-        <button id="btn-export-csv" class="btn-secondary">📥 Export Summary (CSV)</button>
-        <button id="btn-back-home" class="btn-secondary">Back to Start</button>
+      <div class="card-section">
+        <h3>🔍 Spending Insights</h3>
+        <ul id="insights-list" class="insights-list"></ul>
       </div>
+    </div>
 
-      <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
-
-      <div id="modal-advice" class="modal-overlay hidden">
-        <div class="modal-content">
-          <h3>💡 Budget Advice & Suggestions</h3>
-          <div id="advice-content" class="summary-details" style="margin-top: 10px;"></div>
-          <button id="btn-close-advice-modal" class="btn-secondary" style="margin-top: 15px;">Close</button>
+    <div id="modal-add-category" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>📌 Add New Category</h3>
+        <div class="input-group">
+          <label for="dash-new-cat-name">Category Name:</label>
+          <input type="text" id="dash-new-cat-name" placeholder="e.g. Supplies">
+        </div>
+        <div class="input-group">
+          <label for="dash-new-cat-limit">Limit ($):</label>
+          <input type="number" id="dash-new-cat-limit" step="0.01" placeholder="e.g. 50.00">
+        </div>
+        <div class="input-group checkbox-group">
+          <input type="checkbox" id="dash-new-cat-recurring">
+          <label for="dash-new-cat-recurring">Recurring Monthly Bill?</label>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
+          <button id="btn-close-modal" class="btn-secondary">Cancel</button>
         </div>
       </div>
+    </div>
 
-      <div id="modal-add-category" class="modal-overlay hidden">
-        <div class="modal-content">
-          <h3>Add New Category</h3>
-          <div class="input-group">
-            <label for="dash-new-cat-name">Category Name:</label>
-            <input type="text" id="dash-new-cat-name" placeholder="e.g. Subscriptions">
-          </div>
-          <div class="input-group">
-            <label for="dash-new-cat-limit">Budget Limit ($):</label>
-            <input type="number" id="dash-new-cat-limit" min="1" placeholder="e.g. 30">
-          </div>
-          <div class="input-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="dash-new-cat-recurring">
-              <span>Fixed Recurring Bill?</span>
-            </label>
-          </div>
-          <div class="modal-buttons">
-            <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
-            <button id="btn-close-modal" class="btn-secondary">Cancel</button>
-          </div>
+    <div id="modal-add-goal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>🎯 New Savings Goal</h3>
+        <div class="input-group">
+          <label for="goal-name">Goal Name:</label>
+          <input type="text" id="goal-name" placeholder="e.g. Emergency Fund">
+        </div>
+        <div class="input-group">
+          <label for="goal-target">Target Amount ($):</label>
+          <input type="number" id="goal-target" min="1" step="0.01" placeholder="e.g. 1000.00">
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-save-goal" class="btn-submit">Save Goal</button>
+          <button id="btn-close-goal-modal" class="btn-secondary">Cancel</button>
         </div>
       </div>
+    </div>
 
-      <div id="sidebar-history" class="sidebar closed">
-        <div class="sidebar-header">
-          <h3>Past Monthly Spendings</h3>
-          <button id="btn-close-sidebar" class="btn-close">✕</button>
+    <div id="modal-edit-expense" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>✏️ Edit Transaction</h3>
+        <div class="input-group">
+          <label for="edit-expense-note">Description:</label>
+          <input type="text" id="edit-expense-note" placeholder="e.g. Groceries">
         </div>
-        <div id="history-list-container" class="sidebar-content">
-          <p class="empty-msg">No archived months yet.</p>
+        <div class="input-group">
+          <label for="edit-expense-amount">Amount ($):</label>
+          <input type="number" id="edit-expense-amount" min="0" step="0.01" placeholder="e.g. 20.00">
         </div>
-      </div>
-
-      <div id="modal-monthly-summary" class="modal-overlay hidden">
-        <div class="modal-content">
-          <h2>📅 New Month Summary!</h2>
-          <p id="summary-month-name" style="font-weight: bold; margin-bottom: 10px;"></p>
-          <div id="summary-report-details" class="summary-details"></div>
-          
-          <p style="margin-top: 15px; font-weight: bold;">How would you like to proceed?</p>
-          <div class="modal-buttons vertical">
-            <button id="btn-keep-budget" class="btn-submit">Keep Same Budget (Reset Spendings)</button>
-            <button id="btn-new-budget" class="btn-secondary">Start Fresh (Setup New Budget)</button>
-          </div>
+        <div class="modal-buttons">
+          <button id="btn-save-edit-expense" class="btn-submit">Save Changes</button>
+          <button id="btn-close-edit-modal" class="btn-secondary">Cancel</button>
         </div>
       </div>
+    </div>
 
-    </section>
+    <div id="modal-advice" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>💡 Budgeting Advice & Reordering Suggestions</h3>
+        <div id="advice-content"></div>
+        <div class="modal-buttons">
+          <button id="btn-close-advice-modal" class="btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
 
-    <script src="script.js"></script>
-  </body>
+    <div id="modal-monthly-summary" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3 id="summary-month-name">Monthly Report</h3>
+        <div id="summary-report-details"></div>
+        <div class="modal-buttons">
+          <button id="btn-keep-budget" class="btn-submit">Keep Same Limits for Next Month</button>
+          <button id="btn-new-budget" class="btn-secondary">Re-configure Budget Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="sidebar-history" class="sidebar closed">
+      <div class="sidebar-header">
+        <h3>📜 Archived Months</h3>
+        <button id="btn-close-sidebar" class="btn-text">✕</button>
+      </div>
+      <div id="history-list-container" class="sidebar-content"></div>
+    </aside>
+  </section>
+
+  <script src="script.js"></script>
+</body>
 </html>
