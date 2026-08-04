@@ -75,8 +75,8 @@ button {
 }
 
 .btn-small {
-  background-color: #38bdf8;
-  color: #0f172a;
+  background-color: #0284c7;
+  color: #ffffff;
   padding: 6px 12px;
   font-size: 0.85rem;
 }
@@ -181,7 +181,7 @@ button {
   min-width: 220px;
 }
 
-/* POST-IT NOTES GRID */
+/* STRAIGHT CLASSIC YELLOW POST-IT NOTES */
 .postit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -191,29 +191,23 @@ button {
 }
 
 .postit-note {
-  background-color: #1e293b;
-  border-radius: 12px;
+  background-color: #fef08a; /* Sticky yellow */
+  color: #0f172a;
+  border-radius: 4px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-top: 5px solid #a78bfa;
-}
-
-.postit-note:nth-child(odd) {
-  transform: rotate(-1deg);
-}
-
-.postit-note:nth-child(even) {
-  transform: rotate(1deg);
+  border-top: 10px solid #fde047; /* Yellow adhesive header */
+  transform: none !important; /* Strictly straight */
 }
 
 .postit-note:hover {
-  transform: translateY(-4px) rotate(0deg);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+  transform: translateY(-3px) !important;
+  box-shadow: 4px 8px 18px rgba(0, 0, 0, 0.45);
 }
 
 .postit-header {
@@ -221,26 +215,27 @@ button {
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
+  color: #0f172a;
   margin-bottom: 12px;
 }
 
 .btn-delete-cat {
   background: transparent;
-  color: #ef4444;
+  color: #dc2626;
   font-size: 1.1rem;
 }
 
 .postit-details p {
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: #334155;
   margin-bottom: 4px;
 }
 
-/* BATTERY / PROGRESS BAR */
+/* BATTERY / PROGRESS BAR FOR POST-IT */
 .battery-container {
   width: 100%;
   height: 10px;
-  background-color: #334155;
+  background-color: #e2e8f0;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -256,23 +251,25 @@ button {
 
 .battery-text {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #475569;
   text-align: right;
   margin-top: 4px;
 }
 
 .history-hint {
   font-size: 0.8rem;
-  color: #6366f1;
+  color: #0284c7;
   text-align: center;
   margin-top: 8px;
+  font-weight: 600;
 }
 
-/* TRANSACTION HISTORY LIST IN CARDS */
+/* TRANSACTION HISTORY LIST IN POST-ITS */
 .history-section {
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px dashed #334155;
+  border-top: 1px dashed #cbd5e1;
+  color: #0f172a;
 }
 
 .history-list {
@@ -287,6 +284,7 @@ button {
   justify-content: space-between;
   align-items: center;
   padding: 4px 0;
+  color: #1e293b;
 }
 
 .action-span {
@@ -300,7 +298,7 @@ button {
   font-size: 0.8rem;
 }
 
-/* CENTERED AND COMPACT PIE CHART */
+/* CENTERED AND COMPACT PIE CHART & EMPTY STATE */
 .chart-card-section {
   display: flex;
   flex-direction: column;
@@ -313,6 +311,33 @@ button {
   width: 100%;
   max-width: 320px;
   margin: 15px auto 0 auto;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-card {
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #0f172a;
+  border: 1px dashed #334155;
+  color: #94a3b8;
+}
+
+.empty-state-card .empty-icon {
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+}
+
+.empty-state-card h4 {
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.empty-state-card p {
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 /* FLOATING ACTION BUTTON (FAB) */
@@ -373,7 +398,7 @@ button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: rgba(15, 23, 42, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
