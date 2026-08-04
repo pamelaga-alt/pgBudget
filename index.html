@@ -68,7 +68,6 @@
               <option value="Rent">Rent</option>
               <option value="Entertainment">Entertainment</option>
               <option value="Dining Out">Dining Out</option>
-
               <option value="Other">Other (Custom)</option>
             </select>
           </div>
@@ -99,12 +98,12 @@
   </section>
 
   <section id="page-dashboard" class="page-container hidden">
-    <header class="dash-header">
-      <h2 id="dash-tracker-name">My Dashboard</h2>
-      <div class="header-actions">
-        <button id="btn-toggle-advice" class="btn-secondary">💡 Insights & Advice</button>
-        <button id="btn-export-csv" class="btn-secondary">📥 Export CSV</button>
-        <button id="btn-toggle-sidebar" class="btn-secondary">📜 History</button>
+    <header class="dash-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="btn-toggle-sidebar" class="btn-secondary" title="View Past Logs" style="font-size: 1.1rem; padding: 8px 12px;">
+          📁 History
+        </button>
+        <h2 id="dash-tracker-name" style="margin: 0;">My Dashboard</h2>
       </div>
     </header>
 
@@ -142,21 +141,24 @@
       </div>
     </div>
 
-    <h3>📌 Spending Categories</h3>
+    <h3>📌 Spending Categories & Savings Goals</h3>
     <div id="postit-container" class="postit-grid"></div>
 
-    <h3 style="margin-top: 30px;">🎯 Savings Goals</h3>
-    <div id="savings-goals-container" class="postit-grid"></div>
+    <div class="card-section" style="margin-top: 30px;">
+      <h3>💡 Insights & Advice</h3>
+      <div id="inline-advice-content" style="margin-bottom: 15px; color: #cbd5e1;"></div>
+      <ul id="insights-list" class="insights-list"></ul>
+    </div>
 
-    <div class="insights-grid" style="margin-top: 30px;">
-      <div class="card-section">
-        <h3>📊 Spending Breakdown</h3>
-        <canvas id="spendingPieChart"></canvas>
-      </div>
-      <div class="card-section">
-        <h3>🔍 Spending Insights</h3>
-        <ul id="insights-list" class="insights-list"></ul>
-      </div>
+    <div class="card-section" style="margin-top: 30px;">
+      <h3>📊 Spending Breakdown</h3>
+      <canvas id="spendingPieChart"></canvas>
+    </div>
+
+    <div style="margin-top: 40px; margin-bottom: 20px; text-align: center;">
+      <button id="btn-export-csv" class="btn-secondary" style="padding: 12px 24px; font-size: 1rem;">
+        📥 Export CSV
+      </button>
     </div>
 
     <div id="modal-add-category" class="modal-overlay hidden">
@@ -217,16 +219,6 @@
       </div>
     </div>
 
-    <div id="modal-advice" class="modal-overlay hidden">
-      <div class="modal-content">
-        <h3>💡 Budgeting Advice & Reordering Suggestions</h3>
-        <div id="advice-content"></div>
-        <div class="modal-buttons">
-          <button id="btn-close-advice-modal" class="btn-secondary">Close</button>
-        </div>
-      </div>
-    </div>
-
     <div id="modal-monthly-summary" class="modal-overlay hidden">
       <div class="modal-content">
         <h3 id="summary-month-name">Monthly Report</h3>
@@ -240,7 +232,7 @@
 
     <aside id="sidebar-history" class="sidebar closed">
       <div class="sidebar-header">
-        <h3>📜 Archived Months</h3>
+        <h3>📁 Past Logs & Archives</h3>
         <button id="btn-close-sidebar" class="btn-text">✕</button>
       </div>
       <div id="history-list-container" class="sidebar-content"></div>
