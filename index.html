@@ -23,16 +23,33 @@
       <form id="setup-form">
         <div class="input-group">
           <label for="tracker-name">Tracker Name:</label>
-          <input type="text" id="tracker-name" placeholder="e.g. August Budget" required>
+          <input type="text" id="tracker-name" placeholder="e.g. Fall Semester Budget" required>
         </div>
 
         <div class="input-group">
-          <label for="total-budget">Overall Budget Ceiling ($):</label>
-          <input type="number" id="total-budget" min="0" placeholder="e.g. 500" required>
+          <label class="checkbox-label">
+            <input type="checkbox" id="is-lump-sum-check">
+            <span>Receiving Financial Aid or Lump-Sum Income?</span>
+          </label>
+        </div>
+
+        <div id="lump-sum-calculator" class="input-group hidden calc-box">
+          <label for="lump-sum-amount">Total Lump Sum ($):</label>
+          <input type="number" id="lump-sum-amount" placeholder="e.g. 4000">
+          
+          <label for="lump-sum-months" style="margin-top:8px;">Months in Semester/Period:</label>
+          <input type="number" id="lump-sum-months" value="4" min="1" max="12">
+          
+          <button type="button" id="btn-calc-lump-sum" class="btn-secondary" style="margin-top:8px;">Calculate Monthly Allowance</button>
         </div>
 
         <div class="input-group">
-          <label for="total-earnings">Total Estimated Earnings ($):</label>
+          <label for="total-budget">Overall Monthly Budget Ceiling ($):</label>
+          <input type="number" id="total-budget" min="0" placeholder="e.g. 1000" required>
+        </div>
+
+        <div class="input-group">
+          <label for="total-earnings">Total Estimated Additional Monthly Earnings ($):</label>
           <input type="number" id="total-earnings" min="0" placeholder="e.g. 200 (optional)">
         </div>
 
@@ -53,12 +70,19 @@
 
         <div class="input-group hidden" id="custom-category-group">
           <label for="custom-category-name">Custom Category Name:</label>
-          <input type="text" id="custom-category-name" placeholder="e.g. Video Games">
+          <input type="text" id="custom-category-name" placeholder="e.g. Subscriptions">
         </div>
 
         <div class="input-group">
           <label for="category-amount">Category Budget Limit ($):</label>
-          <input type="number" id="category-amount" min="0" placeholder="e.g. 50">
+          <input type="number" id="category-amount" min="0" placeholder="e.g. 150">
+        </div>
+
+        <div class="input-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="is-category-recurring">
+            <span>Fixed Recurring Bill? (e.g. Rent, Spotify, Wifi)</span>
+          </label>
         </div>
 
         <button type="button" id="btn-add-category" class="btn-secondary">+ Add Category</button>
@@ -79,7 +103,7 @@
       <h2 id="dash-tracker-name">Dashboard</h2>
       
       <div id="dash-summary">
-        <p><strong>Total Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
+        <p><strong>Total Monthly Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
         <p>
           <strong>Earnings:</strong> $<span id="dash-earnings">0.00</span>
           <button id="btn-add-earnings" class="btn-inline-add" title="Add Earnings">+</button>
@@ -94,7 +118,7 @@
           <select id="expense-category-select">
             <option value="" disabled selected>Select Category</option>
           </select>
-          <input type="text" id="expense-note-input" placeholder="What was it for? (e.g. Pizza)">
+          <input type="text" id="expense-note-input" placeholder="What was it for? (e.g. Groceries)">
           <input type="number" id="expense-amount-input" min="0" step="0.01" placeholder="Amount ($)">
           <button id="btn-add-expense" class="btn-submit">+ Log Spending</button>
         </div>
@@ -123,7 +147,10 @@
         <canvas id="spendingPieChart"></canvas>
       </div>
 
-      <button id="btn-back-home" class="btn-secondary" style="margin-top: 2rem;">Back to Start</button>
+      <div class="dashboard-actions">
+        <button id="btn-export-csv" class="btn-secondary">📥 Export Summary (CSV)</button>
+        <button id="btn-back-home" class="btn-secondary">Back to Start</button>
+      </div>
 
       <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
 
@@ -145,6 +172,12 @@
           <div class="input-group">
             <label for="dash-new-cat-limit">Budget Limit ($):</label>
             <input type="number" id="dash-new-cat-limit" min="1" placeholder="e.g. 30">
+          </div>
+          <div class="input-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="dash-new-cat-recurring">
+              <span>Fixed Recurring Bill?</span>
+            </label>
           </div>
           <div class="modal-buttons">
             <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
