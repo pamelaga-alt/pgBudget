@@ -546,7 +546,7 @@ btnAddExpense.addEventListener('click', () => {
       id: `expense_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       item: noteText,
       amount: amount,
-      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      date: new Date().toLocaleDateString() // Changed from time to date
     });
 
     saveStateToLocalStorage();
@@ -649,7 +649,6 @@ function renderPieChart() {
 
   const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
 
-  // EMPTY STATE GRAPHIC CHECK
   if (totalSpent === 0) {
     canvas.classList.add('hidden');
     emptyState.classList.remove('hidden');
@@ -657,7 +656,6 @@ function renderPieChart() {
     return;
   }
 
-  // Show Chart, hide empty state
   canvas.classList.remove('hidden');
   emptyState.classList.add('hidden');
 
