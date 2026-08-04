@@ -98,9 +98,10 @@
 
     <section id="page-dashboard" class="screen hidden">
       
-      <button id="btn-toggle-sidebar" class="sidebar-toggle-btn">📂 History</button>
-
-      <h2 id="dash-tracker-name">Dashboard</h2>
+      <div class="dashboard-header">
+        <h2 id="dash-tracker-name">Dashboard</h2>
+        <button id="btn-toggle-sidebar" class="sidebar-toggle-btn">📂 History</button>
+      </div>
       
       <div id="dash-summary">
         <p><strong>Total Monthly Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
@@ -132,12 +133,12 @@
       <hr class="divider">
 
       <h3>Automated Insights & Recommendations</h3>
-      <div id="insights-container" class="postit-note insight-note">
-        <div class="postit-header">💡 Budget Analysis & Advice</div>
+      <div id="insights-container" class="insight-card">
+        <div class="insight-header">💡 Budget Analysis & Advice</div>
         
         <ul id="insights-list" class="insights-list"></ul>
 
-        <button id="btn-toggle-advice" class="btn-advice-corner" title="View Detailed Advice">❗</button>
+        <button id="btn-toggle-advice" class="btn-advice-corner" title="View Detailed Advice">❗ Detailed Advice</button>
       </div>
 
       <hr class="divider">
