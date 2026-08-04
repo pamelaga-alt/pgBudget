@@ -110,7 +110,10 @@
       <h3>Automated Insights & Recommendations</h3>
       <div id="insights-container" class="postit-note insight-note">
         <div class="postit-header">💡 Budget Analysis & Advice</div>
+        
         <ul id="insights-list" class="insights-list"></ul>
+
+        <button id="btn-toggle-advice" class="btn-advice-corner" title="View Detailed Advice">❗</button>
       </div>
 
       <hr class="divider">
@@ -123,6 +126,14 @@
       <button id="btn-back-home" class="btn-secondary" style="margin-top: 2rem;">Back to Start</button>
 
       <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
+
+      <div id="modal-advice" class="modal-overlay hidden">
+        <div class="modal-content">
+          <h3>💡 Budget Advice & Suggestions</h3>
+          <div id="advice-content" class="summary-details" style="margin-top: 10px;"></div>
+          <button id="btn-close-advice-modal" class="btn-secondary" style="margin-top: 15px;">Close</button>
+        </div>
+      </div>
 
       <div id="modal-add-category" class="modal-overlay hidden">
         <div class="modal-content">
