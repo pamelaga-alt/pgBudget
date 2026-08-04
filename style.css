@@ -441,3 +441,35 @@ button:hover {
 .insights-list li {
   margin-bottom: 4px;
 }
+/* Position the Insight Note as a relative container */
+.postit-note.insight-note {
+  position: relative;
+  padding-bottom: 40px; /* Space for the corner button */
+}
+
+/* Exclamation point button in bottom-left corner */
+.btn-advice-corner {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-advice-corner:hover {
+  background-color: #d97706;
+  transform: scale(1.1);
+}
