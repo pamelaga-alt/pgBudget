@@ -232,3 +232,94 @@ button:hover {
   font-weight: bold;
   margin-top: 4px;
 }
+/* Floating Bottom-Right Button */
+.floating-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: #6366f1;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.floating-btn:hover {
+  background-color: #4f46e5;
+  transform: scale(1.1);
+}
+
+/* Modal Popup Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal-content {
+  background-color: #1e293b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  text-align: left;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+/* Interactive Post-It Details Toggle */
+.postit-note {
+  cursor: pointer;
+  user-select: none;
+}
+
+.history-section {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #ca8a04;
+  font-size: 0.8rem;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+}
+
+.history-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.history-hint {
+  font-size: 0.7rem;
+  color: #713f12;
+  text-align: center;
+  margin-top: 6px;
+  font-style: italic;
+}
