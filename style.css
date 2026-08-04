@@ -158,9 +158,9 @@ body {
 }
 
 .postit-note {
-  background-color: #fef08a; /* Soft Post-it Yellow */
+  background-color: #fef08a !important; /* Soft Post-it Yellow for ALL category cards */
   border: none;
-  border-radius: 2px 2px 18px 2px; /* Soft curl effect on corner */
+  border-radius: 2px 2px 18px 2px;
   padding: 24px 18px 18px 18px;
   display: flex;
   flex-direction: column;
@@ -172,10 +172,14 @@ body {
   cursor: pointer;
 }
 
-/* Alternate slight tilt & pink shade for even post-it notes */
+/* Alternate slight tilt only (keeps yellow background) */
 .postit-note:nth-child(even) {
   transform: rotate(1.5deg);
-  background-color: #fce7f3;
+}
+
+/* Dedicated Blue Style for Savings Goal Cards */
+.postit-note.savings-goal {
+  background-color: #e0f2fe !important; /* Soft Pastel Blue */
 }
 
 .postit-note:hover {
@@ -380,6 +384,15 @@ body {
   font-weight: bold;
 }
 
+/* INSIGHTS & ADVICE LIST */
+.insights-list {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 /* CHART & EXPORT */
 .chart-card-section {
   max-width: 800px;
@@ -454,7 +467,6 @@ body {
   z-index: 100;
 }
 
-/* Updated Folder Circle Button to Match Plus Button */
 .fab-main-btn-secondary {
   width: 56px;
   height: 56px;
