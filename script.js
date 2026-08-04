@@ -22,6 +22,10 @@ let pieChartInstance = null;
 let currentAdviceHtml = "";
 const openHistoryCards = new Set();
 
+// Active tracking for transaction editing modal
+let currentEditingCatId = null;
+let currentEditingExpenseId = null;
+
 function getCurrentMonthYear() {
   const date = new Date();
   return date.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -109,6 +113,13 @@ const btnToggleAdvice = document.getElementById('btn-toggle-advice');
 const modalAdvice = document.getElementById('modal-advice');
 const adviceContent = document.getElementById('advice-content');
 const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
+
+// Edit Expense Modal Elements
+const modalEditExpense = document.getElementById('modal-edit-expense');
+const editExpenseNote = document.getElementById('edit-expense-note');
+const editExpenseAmount = document.getElementById('edit-expense-amount');
+const btnSaveEditExpense = document.getElementById('btn-save-edit-expense');
+const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
 
 let configuredCategories = [];
 
@@ -443,6 +454,7 @@ function deleteExpense(catId, expenseId) {
   }
 }
 
+// Triggered when clicking ✏️ on a log item
 function editExpense(catId, expenseId) {
   const category = appState.activeTracker.categories.find(c => c.id === catId);
   if (!category || !category.history) return;
@@ -450,24 +462,50 @@ function editExpense(catId, expenseId) {
   const expense = category.history.find(h => h.id === expenseId);
   if (!expense) return;
 
-  const newNote = prompt("Edit item description:", expense.item);
-  if (newNote === null) return;
+  currentEditingCatId = catId;
+  currentEditingExpenseId = expenseId;
 
-  const newAmountStr = prompt("Edit amount ($):", expense.amount);
-  const newAmount = parseFloat(newAmountStr);
+  editExpenseNote.value = expense.item;
+  editExpenseAmount.value = expense.amount;
+
+  modalEditExpense.classList.remove('hidden');
+}
+
+// Close Edit Expense Modal
+btnCloseEditModal.addEventListener('click', () => {
+  modalEditExpense.classList.add('hidden');
+  currentEditingCatId = null;
+  currentEditingExpenseId = null;
+});
+
+// Save Edited Expense Details
+btnSaveEditExpense.addEventListener('click', () => {
+  if (!currentEditingCatId || !currentEditingExpenseId) return;
+
+  const category = appState.activeTracker.categories.find(c => c.id === currentEditingCatId);
+  if (!category || !category.history) return;
+
+  const expense = category.history.find(h => h.id === currentEditingExpenseId);
+  if (!expense) return;
+
+  const newNote = editExpenseNote.value.trim() || "Uncategorized Expense";
+  const newAmount = parseFloat(editExpenseAmount.value);
 
   if (isNaN(newAmount) || newAmount <= 0) {
-    alert("Please enter a valid amount.");
+    alert("Please enter a valid spending amount.");
     return;
   }
 
   category.spent = Math.max(0, (category.spent - expense.amount) + newAmount);
-  expense.item = newNote.trim() || "Uncategorized Expense";
+  expense.item = newNote;
   expense.amount = newAmount;
 
   saveStateToLocalStorage();
+  modalEditExpense.classList.add('hidden');
+  currentEditingCatId = null;
+  currentEditingExpenseId = null;
   renderDashboard();
-}
+});
 
 function renderPieChart() {
   const tracker = appState.activeTracker;
@@ -620,7 +658,7 @@ function renderDashboard() {
     const isHistoryOpen = openHistoryCards.has(cat.id);
     const icon = cat.isRecurring ? '🔄' : '📌';
 
-    // Header Element with Delete Button
+    // Header Element with Delete Category Button
     const headerDiv = document.createElement('div');
     headerDiv.className = 'postit-header';
     headerDiv.innerHTML = `<span>${icon} ${cat.name}</span>`;
@@ -647,7 +685,6 @@ function renderDashboard() {
 
     // Footer Element with History Logs & Actions
     const footerDiv = document.createElement('div');
-    let historySectionHtml = '';
 
     if (isHistoryOpen) {
       const historyContainer = document.createElement('div');
@@ -721,7 +758,7 @@ function renderDashboard() {
 }
 
 // -------------------------------------------------------------
-// 7. FEATURE 5: CSV EXPORT FUNCTIONALITY
+// 7. CSV EXPORT FUNCTIONALITY
 // -------------------------------------------------------------
 btnExportCSV.addEventListener('click', () => {
   const tracker = appState.activeTracker;
