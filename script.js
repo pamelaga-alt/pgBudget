@@ -9,14 +9,16 @@ let appState = {
   activeTracker: {
     id: null,
     name: "",
-    monthYear: "", // e.g. "August 2026"
+    monthYear: "",
     totalBudget: 0,
     totalEarnings: 0,
     categories: []
   },
-  archivedTrackers: [], // Array to store past monthly reports
+  archivedTrackers: [],
   settings: { lastUpdated: null }
 };
+
+let pieChartInstance = null; // Global reference for Chart.js instance
 
 function getCurrentMonthYear() {
   const date = new Date();
@@ -42,7 +44,6 @@ function loadStateFromLocalStorage() {
 }
 
 loadStateFromLocalStorage();
-
 const openHistoryCards = new Set();
 
 // -------------------------------------------------------------
@@ -56,7 +57,7 @@ const btnNewTracker = document.getElementById('btn-new-tracker');
 const btnOldTracker = document.getElementById('btn-old-tracker');
 const btnBackHome = document.getElementById('btn-back-home');
 
-// Setup Form Elements
+// Setup Form
 const setupForm = document.getElementById('setup-form');
 const categorySelect = document.getElementById('category-select');
 const customCategoryGroup = document.getElementById('custom-category-group');
@@ -65,16 +66,19 @@ const categoryAmountInput = document.getElementById('category-amount');
 const btnAddCategory = document.getElementById('btn-add-category');
 const activeCategoriesList = document.getElementById('active-categories');
 
-// Dashboard Elements
+// Dashboard
 const dashTrackerName = document.getElementById('dash-tracker-name');
 const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
+const btnAddEarnings = document.getElementById('btn-add-earnings');
 const postitContainer = document.getElementById('postit-container');
 const expenseCategorySelect = document.getElementById('expense-category-select');
+const expenseNoteInput = document.getElementById('expense-note-input');
 const expenseAmountInput = document.getElementById('expense-amount-input');
 const btnAddExpense = document.getElementById('btn-add-expense');
+const insightsList = document.getElementById('insights-list');
 
-// Floating Modal Elements
+// Floating Modal
 const btnFloatingAddCat = document.getElementById('btn-floating-add-cat');
 const modalAddCategory = document.getElementById('modal-add-category');
 const btnSaveModalCat = document.getElementById('btn-save-modal-cat');
@@ -82,13 +86,13 @@ const btnCloseModal = document.getElementById('btn-close-modal');
 const dashNewCatName = document.getElementById('dash-new-cat-name');
 const dashNewCatLimit = document.getElementById('dash-new-cat-limit');
 
-// Sidebar History Elements
+// Sidebar History
 const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const btnCloseSidebar = document.getElementById('btn-close-sidebar');
 const sidebarHistory = document.getElementById('sidebar-history');
 const historyListContainer = document.getElementById('history-list-container');
 
-// Monthly Summary Modal Elements
+// Monthly Summary Modal
 const modalMonthlySummary = document.getElementById('modal-monthly-summary');
 const summaryMonthName = document.getElementById('summary-month-name');
 const summaryReportDetails = document.getElementById('summary-report-details');
@@ -198,7 +202,6 @@ function checkMonthlyRollover() {
   const currentMonth = getCurrentMonthYear();
   const tracker = appState.activeTracker;
 
-  // If saved month is different from current month, trigger summary report!
   if (tracker && tracker.monthYear && tracker.monthYear !== currentMonth) {
     showMonthlySummaryModal(tracker);
   }
@@ -225,13 +228,10 @@ function showMonthlySummaryModal(pastTracker) {
   modalMonthlySummary.classList.remove('hidden');
 }
 
-// Option A: Keep Same Budget (Archive old & Reset current spending)
 btnKeepBudget.addEventListener('click', () => {
-  // 1. Archive previous month state
   if (!appState.archivedTrackers) appState.archivedTrackers = [];
   appState.archivedTrackers.push({ ...appState.activeTracker });
 
-  // 2. Reset spending for the new month
   appState.activeTracker.monthYear = getCurrentMonthYear();
   appState.activeTracker.categories.forEach(cat => {
     cat.spent = 0;
@@ -243,7 +243,6 @@ btnKeepBudget.addEventListener('click', () => {
   renderDashboard();
 });
 
-// Option B: Start Fresh (Archive old & navigate to setup)
 btnNewBudget.addEventListener('click', () => {
   if (!appState.archivedTrackers) appState.archivedTrackers = [];
   appState.archivedTrackers.push({ ...appState.activeTracker });
@@ -251,7 +250,6 @@ btnNewBudget.addEventListener('click', () => {
   saveStateToLocalStorage();
   modalMonthlySummary.classList.add('hidden');
   
-  // Reset setup form and go to Page 2
   configuredCategories = [];
   activeCategoriesList.innerHTML = '';
   setupForm.reset();
@@ -278,7 +276,6 @@ function renderSidebarHistory() {
     return;
   }
 
-  // Render past months list
   appState.archivedTrackers.slice().reverse().forEach(archived => {
     const card = document.createElement('div');
     card.className = 'archived-month-card';
@@ -296,8 +293,18 @@ function renderSidebarHistory() {
 }
 
 // -------------------------------------------------------------
-// 6. DASHBOARD & FLOATING MODAL LOGIC
+// 6. DASHBOARD & INTERACTION LOGIC
 // -------------------------------------------------------------
+// Quick-add additional earnings directly from Dashboard
+btnAddEarnings.addEventListener('click', () => {
+  const extraEarnings = parseFloat(prompt("Enter additional earnings amount ($):"));
+  if (!isNaN(extraEarnings) && extraEarnings > 0) {
+    appState.activeTracker.totalEarnings += extraEarnings;
+    saveStateToLocalStorage();
+    renderDashboard();
+  }
+});
+
 btnFloatingAddCat.addEventListener('click', () => {
   dashNewCatName.value = '';
   dashNewCatLimit.value = '';
@@ -332,6 +339,7 @@ btnSaveModalCat.addEventListener('click', () => {
 
 btnAddExpense.addEventListener('click', () => {
   const selectedCatId = expenseCategorySelect.value;
+  const noteText = expenseNoteInput.value.trim() || "Uncategorized Expense";
   const amount = parseFloat(expenseAmountInput.value);
 
   if (!selectedCatId || isNaN(amount) || amount <= 0) {
@@ -345,6 +353,7 @@ btnAddExpense.addEventListener('click', () => {
     if (!category.history) category.history = [];
     
     category.history.push({
+      item: noteText,
       amount: amount,
       date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
@@ -352,8 +361,84 @@ btnAddExpense.addEventListener('click', () => {
     saveStateToLocalStorage();
     renderDashboard();
     expenseAmountInput.value = '';
+    expenseNoteInput.value = '';
   }
 });
+
+// DAY 5: Dynamic Chart.js Rendering
+function renderPieChart() {
+  const tracker = appState.activeTracker;
+  if (!tracker) return;
+
+  const labels = tracker.categories.map(c => c.name);
+  const data = tracker.categories.map(c => c.spent);
+  const totalSpent = data.reduce((a, b) => a + b, 0);
+
+  const ctx = document.getElementById('spendingPieChart').getContext('2d');
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy(); // Clear existing instance before redraw
+  }
+
+  if (totalSpent === 0) {
+    // Show placeholder if no expenses have been logged yet
+    pieChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['No Expenditures Yet'],
+        datasets: [{ data: [1], backgroundColor: ['#334155'] }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+    return;
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: [
+          '#f87171', '#38bdf8', '#fbbf24', '#34d399', 
+          '#a78bfa', '#f472b6', '#fb923c', '#4ade80'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc' }
+        }
+      }
+    }
+  });
+}
+
+// DAY 6: Automated Insights / Sticky Note Calculation
+function updateInsightsWidget() {
+  insightsList.innerHTML = '';
+  const tracker = appState.activeTracker;
+  if (!tracker) return;
+
+  const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
+
+  if (totalSpent === 0) {
+    insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns!</li>';
+    return;
+  }
+
+  tracker.categories.forEach(cat => {
+    if (cat.spent > 0) {
+      const percentage = ((cat.spent / totalSpent) * 100).toFixed(1);
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${percentage}%</strong> of overall spending went to <em>${cat.name}</em> ($${cat.spent.toFixed(2)})`;
+      insightsList.appendChild(li);
+    }
+  });
+}
 
 function renderDashboard() {
   const tracker = appState.activeTracker;
@@ -389,7 +474,7 @@ function renderDashboard() {
     let historyHtml = '';
     if (isHistoryOpen) {
       const logs = cat.history && cat.history.length > 0
-        ? cat.history.map(h => `<li><span>${h.date}</span> <strong>+$${h.amount.toFixed(2)}</strong></li>`).join('')
+        ? cat.history.map(h => `<li><span>${h.date} - ${h.item}</span> <strong>+$${h.amount.toFixed(2)}</strong></li>`).join('')
         : '<li><em>No logs recorded yet</em></li>';
 
       historyHtml = `
@@ -430,4 +515,7 @@ function renderDashboard() {
 
     postitContainer.appendChild(note);
   });
+
+  renderPieChart();
+  updateInsightsWidget();
 }
