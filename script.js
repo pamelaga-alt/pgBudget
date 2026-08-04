@@ -597,7 +597,45 @@ function deleteCategory(catId) {
 }
 
 // -------------------------------------------------------------
-// 7. RENDERING DASHBOARD, POST-ITS & PIE CHART
+// 7. INSIGHTS & ADVICE GENERATOR
+// -------------------------------------------------------------
+function renderInsights() {
+  const inlineAdvice = document.getElementById('inline-advice-content');
+  const insightsList = document.getElementById('insights-list');
+  if (!inlineAdvice || !insightsList) return;
+
+  const categories = appState.activeTracker.categories;
+  const totalSpent = categories.reduce((sum, c) => sum + c.spent, 0);
+
+  inlineAdvice.innerHTML = '';
+  insightsList.innerHTML = '';
+
+  if (totalSpent === 0) {
+    inlineAdvice.innerHTML = '✨ No expenses logged yet for this month.';
+    return;
+  }
+
+  // Check over-budget status
+  const overBudget = categories.filter(c => c.spent > c.limit);
+  if (overBudget.length > 0) {
+    inlineAdvice.innerHTML = `<span style="color: #ef4444; font-weight: bold;">⚠️ You are over budget in ${overBudget.length} category/categories!</span>`;
+  } else {
+    inlineAdvice.innerHTML = `<span style="color: #10b981; font-weight: bold;">✅ Great job!</span> You are within budget for all categories. Keep it up!`;
+  }
+
+  // Breakdown percentages
+  categories.forEach(cat => {
+    if (cat.spent > 0) {
+      const share = ((cat.spent / totalSpent) * 100).toFixed(1);
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${share}%</strong> of overall spending went to <em>${cat.name}</em> ($${cat.spent.toFixed(2)})`;
+      insightsList.appendChild(li);
+    }
+  });
+}
+
+// -------------------------------------------------------------
+// 8. RENDERING DASHBOARD, POST-ITS & PIE CHART
 // -------------------------------------------------------------
 function renderDashboard() {
   const tracker = appState.activeTracker;
@@ -625,7 +663,7 @@ function renderDashboard() {
   // Render Post-it Grid
   postitContainer.innerHTML = '';
 
-  // Render Spending Categories
+  // 1. Render Spending Categories (Yellow Post-its)
   tracker.categories.forEach(cat => {
     if (categoryFilter !== "ALL" && cat.id !== categoryFilter) return;
 
@@ -635,7 +673,7 @@ function renderDashboard() {
     if (percent >= 100) colorClass = 'red';
 
     const card = document.createElement('div');
-    card.className = 'postit-note';
+    card.className = 'postit-note'; // Standard Yellow Post-it
 
     card.innerHTML = `
       <div>
@@ -656,7 +694,7 @@ function renderDashboard() {
     postitContainer.appendChild(card);
   });
 
-  // Render Savings Goals
+  // 2. Render Savings Goals (Blue Post-its)
   if (tracker.savingsGoals) {
     tracker.savingsGoals.forEach(goal => {
       if (categoryFilter !== "ALL") return;
@@ -664,8 +702,7 @@ function renderDashboard() {
       const percent = goal.target > 0 ? Math.min((goal.saved / goal.target) * 100, 100) : 0;
 
       const card = document.createElement('div');
-      card.className = 'postit-note';
-      card.style.backgroundColor = '#e0f2fe'; // Soft light blue post-it for savings goals
+      card.className = 'postit-note savings-goal'; // Blue Savings Goal Class
 
       card.innerHTML = `
         <div>
@@ -679,7 +716,7 @@ function renderDashboard() {
               <div class="battery-fill" style="width: ${percent}%; background-color: #0284c7;"></div>
             </div>
             <div class="battery-text">${percent.toFixed(1)}% reached</div>
-            <button class="btn-deposit" style="margin-top: 12px;" onclick="addFundsToGoal('${goal.id}')">Deposit Funds</button>
+            <button class="btn-deposit" style="margin-top: 12px;" onclick="addFundsToGoal('${goal.id}')">+ Deposit Funds</button>
           </div>
         </div>
       `;
@@ -687,11 +724,12 @@ function renderDashboard() {
     });
   }
 
+  renderInsights();
   renderChart();
 }
 
 // -------------------------------------------------------------
-// 8. CHART & CSV EXPORT
+// 9. CHART & CSV EXPORT
 // -------------------------------------------------------------
 function renderChart() {
   const ctx = document.getElementById('spendingPieChart').getContext('2d');
@@ -699,14 +737,23 @@ function renderChart() {
 
   const labels = [];
   const data = [];
-  const colors = ['#f472b6', '#38bdf8', '#fbbf24', '#34d399', '#a78bfa', '#f87171'];
+  const colors = ['#f472b6', '#38bdf8', '#fbbf24', '#a78bfa', '#f87171'];
 
+  let totalSpent = 0;
   appState.activeTracker.categories.forEach(cat => {
     if (cat.spent > 0) {
       labels.push(cat.name);
       data.push(cat.spent);
+      totalSpent += cat.spent;
     }
   });
+
+  // Calculate Unused Budget slice
+  const remainingBudget = appState.activeTracker.totalBudget - totalSpent;
+  if (remainingBudget > 0) {
+    labels.push("Unused Budget");
+    data.push(remainingBudget);
+  }
 
   if (pieChartInstance) {
     pieChartInstance.destroy();
@@ -719,13 +766,19 @@ function renderChart() {
     emptyState.classList.add('hidden');
   }
 
+  // Set color for each slice (Mint Green reserved for Unused Budget)
+  const backgroundColors = labels.map((label, idx) => {
+    if (label === "Unused Budget") return '#34d399';
+    return colors[idx % colors.length];
+  });
+
   pieChartInstance = new Chart(ctx, {
     type: 'pie',
     data: {
       labels: labels,
       datasets: [{
         data: data,
-        backgroundColor: colors.slice(0, data.length)
+        backgroundColor: backgroundColors
       }]
     },
     options: {
