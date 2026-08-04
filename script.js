@@ -444,9 +444,25 @@ function updateInsightsWidget() {
   if (totalSpent === 0) {
     insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns and advice!</li>';
     return;
+    // Global variable to store the current generated advice
+let currentAdviceHtml = "";
+
+// 2. AUTOMATED INSIGHTS & ADVICE SEPARATION
+// 2. AUTOMATED INSIGHTS & ADVICE SEPARATION
+function updateInsightsWidget() {
+  insightsList.innerHTML = '';
+  const tracker = appState.activeTracker;
+  if (!tracker) return;
+
+  const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
+
+  if (totalSpent === 0) {
+    insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns!</li>';
+    currentAdviceHtml = '<p>No spending logged yet! Log expenses to get tailored advice.</p>';
+    return;
   }
 
-  // Percentage distribution notes
+  // 1. Render ONLY percentage bullet points in the note
   tracker.categories.forEach(cat => {
     if (cat.spent > 0) {
       const percentage = ((cat.spent / totalSpent) * 100).toFixed(1);
@@ -456,7 +472,7 @@ function updateInsightsWidget() {
     }
   });
 
-  // Overspending & Budget Reordering Advice Engine
+  // 2. Build detailed advice and suggestions for the modal popup
   const overspentCats = [];
   const underspentCats = [];
 
@@ -470,30 +486,40 @@ function updateInsightsWidget() {
   });
 
   if (overspentCats.length === 0) {
-    const li = document.createElement('li');
-    li.style.marginTop = "8px";
-    li.innerHTML = `✅ <strong>Great job!</strong> You are within budget for all categories.`;
-    insightsList.appendChild(li);
+    currentAdviceHtml = `<p>✅ <strong>Great job!</strong> You are within budget for all categories. Keep it up!</p>`;
   } else {
+    let adviceList = '<ul style="list-style-type: none; padding-left: 0;">';
+    
     overspentCats.forEach(over => {
-      const warningLi = document.createElement('li');
-      warningLi.style.marginTop = "8px";
-      warningLi.innerHTML = `⚠️ <strong>Overspent:</strong> You went over budget in <em>${over.name}</em> by <strong>$${over.deficit.toFixed(2)}</strong>.`;
-      insightsList.appendChild(warningLi);
+      adviceList += `<li style="margin-bottom: 8px;">⚠️ <strong>Overspent:</strong> You went over budget in <em>${over.name}</em> by <strong>$${over.deficit.toFixed(2)}</strong>.</li>`;
 
       underspentCats.forEach(under => {
         if (under.surplus > 0) {
           const moveAmount = Math.min(over.deficit, under.surplus);
-          const adviceLi = document.createElement('li');
-          adviceLi.style.listStyleType = "none";
-          adviceLi.style.paddingLeft = "10px";
-          adviceLi.innerHTML = `💡 <em>Reorder Suggestion:</em> Move <strong>$${moveAmount.toFixed(2)}</strong> from <strong>${under.name}</strong> to cover <strong>${over.name}</strong>.`;
-          insightsList.appendChild(adviceLi);
+          adviceList += `<li style="padding-left: 15px; margin-bottom: 6px;">💡 <em>Reorder Suggestion:</em> Move <strong>$${moveAmount.toFixed(2)}</strong> from <strong>${under.name}</strong> to cover <strong>${over.name}</strong>.</li>`;
         }
       });
     });
+
+    adviceList += '</ul>';
+    currentAdviceHtml = adviceList;
   }
 }
+
+// Event Listeners for Advice Modal
+const btnToggleAdvice = document.getElementById('btn-toggle-advice');
+const modalAdvice = document.getElementById('modal-advice');
+const adviceContent = document.getElementById('advice-content');
+const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
+
+btnToggleAdvice.addEventListener('click', () => {
+  adviceContent.innerHTML = currentAdviceHtml;
+  modalAdvice.classList.remove('hidden');
+});
+
+btnCloseAdviceModal.addEventListener('click', () => {
+  modalAdvice.classList.add('hidden');
+});
 
 function renderDashboard() {
   const tracker = appState.activeTracker;
