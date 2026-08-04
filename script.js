@@ -20,14 +20,11 @@ let appState = {
 };
 
 let pieChartInstance = null;
-let currentAdviceHtml = "";
 const openHistoryCards = new Set();
 
-// Active tracking for transaction editing modal
 let currentEditingCatId = null;
 let currentEditingExpenseId = null;
 
-// Search and Filter State
 let searchQuery = "";
 let categoryFilter = "ALL";
 
@@ -89,7 +86,6 @@ const activeCategoriesList = document.getElementById('active-categories');
 const dashTrackerName = document.getElementById('dash-tracker-name');
 const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
-const btnAddEarnings = document.getElementById('btn-add-earnings');
 const postitContainer = document.getElementById('postit-container');
 const expenseCategorySelect = document.getElementById('expense-category-select');
 const expenseNoteInput = document.getElementById('expense-note-input');
@@ -99,7 +95,19 @@ const insightsList = document.getElementById('insights-list');
 const inlineAdviceContent = document.getElementById('inline-advice-content');
 const btnExportCSV = document.getElementById('btn-export-csv');
 
-const btnFloatingAddCat = document.getElementById('btn-floating-add-cat');
+// FAB Elements
+const btnFabMain = document.getElementById('btn-fab-main');
+const fabOptions = document.getElementById('fab-options');
+const btnFabAddEarnings = document.getElementById('btn-fab-add-earnings');
+const btnFabAddCat = document.getElementById('btn-fab-add-cat');
+const btnFabAddGoal = document.getElementById('btn-fab-add-goal');
+
+// Modals
+const modalAddEarnings = document.getElementById('modal-add-earnings');
+const inputEarningsAmount = document.getElementById('input-earnings-amount');
+const btnSaveEarnings = document.getElementById('btn-save-earnings');
+const btnCloseEarningsModal = document.getElementById('btn-close-earnings-modal');
+
 const modalAddCategory = document.getElementById('modal-add-category');
 const btnSaveModalCat = document.getElementById('btn-save-modal-cat');
 const btnCloseModal = document.getElementById('btn-close-modal');
@@ -107,7 +115,6 @@ const dashNewCatName = document.getElementById('dash-new-cat-name');
 const dashNewCatLimit = document.getElementById('dash-new-cat-limit');
 const dashNewCatRecurring = document.getElementById('dash-new-cat-recurring');
 
-const btnFloatingAddGoal = document.getElementById('btn-floating-add-goal');
 const modalAddGoal = document.getElementById('modal-add-goal');
 const btnSaveGoal = document.getElementById('btn-save-goal');
 const btnCloseGoalModal = document.getElementById('btn-close-goal-modal');
@@ -361,28 +368,36 @@ function renderSidebarHistory() {
 }
 
 // -------------------------------------------------------------
-// 6. DASHBOARD & INTERACTION LOGIC
+// 6. DASHBOARD & FLOATING ACTION BUTTON LOGIC
 // -------------------------------------------------------------
-inputSearchExpenses.addEventListener('input', (e) => {
-  searchQuery = e.target.value.toLowerCase().trim();
-  renderDashboard();
+btnFabMain.addEventListener('click', () => {
+  fabOptions.classList.toggle('hidden');
 });
 
-selectFilterCategory.addEventListener('change', (e) => {
-  categoryFilter = e.target.value;
-  renderDashboard();
+btnFabAddEarnings.addEventListener('click', () => {
+  fabOptions.classList.add('hidden');
+  inputEarningsAmount.value = '';
+  modalAddEarnings.classList.remove('hidden');
 });
 
-btnAddEarnings.addEventListener('click', () => {
-  const extraEarnings = parseFloat(prompt("Enter additional earnings amount ($):"));
+btnCloseEarningsModal.addEventListener('click', () => {
+  modalAddEarnings.classList.add('hidden');
+});
+
+btnSaveEarnings.addEventListener('click', () => {
+  const extraEarnings = parseFloat(inputEarningsAmount.value);
   if (!isNaN(extraEarnings) && extraEarnings > 0) {
     appState.activeTracker.totalEarnings += extraEarnings;
     saveStateToLocalStorage();
+    modalAddEarnings.classList.add('hidden');
     renderDashboard();
+  } else {
+    alert("Please enter a valid earnings amount.");
   }
 });
 
-btnFloatingAddCat.addEventListener('click', () => {
+btnFabAddCat.addEventListener('click', () => {
+  fabOptions.classList.add('hidden');
   dashNewCatName.value = '';
   dashNewCatLimit.value = '';
   dashNewCatRecurring.checked = false;
@@ -417,8 +432,8 @@ btnSaveModalCat.addEventListener('click', () => {
   renderDashboard();
 });
 
-// SAVINGS GOAL LOGIC
-btnFloatingAddGoal.addEventListener('click', () => {
+btnFabAddGoal.addEventListener('click', () => {
+  fabOptions.classList.add('hidden');
   document.getElementById('goal-name').value = '';
   document.getElementById('goal-target').value = '';
   modalAddGoal.classList.remove('hidden');
@@ -450,6 +465,16 @@ btnSaveGoal.addEventListener('click', () => {
 
   saveStateToLocalStorage();
   modalAddGoal.classList.add('hidden');
+  renderDashboard();
+});
+
+inputSearchExpenses.addEventListener('input', (e) => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  renderDashboard();
+});
+
+selectFilterCategory.addEventListener('change', (e) => {
+  categoryFilter = e.target.value;
   renderDashboard();
 });
 
@@ -702,7 +727,6 @@ function renderDashboard() {
   dashTotalBudget.textContent = tracker.totalBudget.toFixed(2);
   dashEarnings.textContent = tracker.totalEarnings.toFixed(2);
 
-  // Update Category Selection Options
   expenseCategorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>';
   selectFilterCategory.innerHTML = '<option value="ALL">All Categories</option>';
 
@@ -721,7 +745,6 @@ function renderDashboard() {
 
   postitContainer.innerHTML = '';
 
-  // Render Spending Categories
   tracker.categories.forEach(cat => {
     if (categoryFilter !== 'ALL' && cat.id !== categoryFilter) return;
 
@@ -835,16 +858,14 @@ function renderDashboard() {
     postitContainer.appendChild(note);
   });
 
-  // Render Savings Goals directly inside the same grid section alongside categories
   renderSavingsGoals();
-
   renderPieChart();
   updateInsightsWidget();
 }
 
 function renderSavingsGoals() {
   const goals = appState.activeTracker.savingsGoals || [];
-  if (categoryFilter !== 'ALL') return; // Hide savings goals if a specific category is filtered
+  if (categoryFilter !== 'ALL') return;
 
   goals.forEach(goal => {
     if (searchQuery && !goal.name.toLowerCase().includes(searchQuery)) return;
