@@ -18,7 +18,56 @@
     </section>
     <section id="page-2" class="screen hidden">
   <h2>Set Up Your Budget</h2>
-  <button id="btn-to-dashboard">Go to Dashboard</button>
+      <form id="setup-form">
+        <div class="input-group">
+ <label for="tracker-name">Tracker Name:</label>
+          <input type="text" id="tracker-name" placeholder="e.g. August Budget" required>
+        </div>
+
+        <div class="input-group">
+          <label for="total-budget">Overall Budget Ceiling ($):</label>
+          <input type="number" id="total-budget" min="0" placeholder="e.g. 500" required>
+        </div>
+
+        <div class="input-group">
+          <label for="total-earnings">Total Estimated Earnings ($):</label>
+          <input type="number" id="total-earnings" min="0" placeholder="e.g. 200 (optional)">
+        </div>
+
+        <hr class="divider">
+
+        <h3>Add Category Budgets</h3>
+        <div class="input-group">
+          <label for="category-select">Category:</label>
+          <select id="category-select">
+            <option value="" disabled selected>Select Category</option>
+            <option value="School">School</option>
+            <option value="Friends">Friends</option>
+            <option value="Food">Food</option>
+            <option value="Going Out">Going Out</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="input-group hidden" id="custom-category-group">
+          <label for="custom-category-name">Custom Category Name:</label>
+          <input type="text" id="custom-category-name" placeholder="e.g. Video Games">
+        </div>
+
+        <div class="input-group">
+          <label for="category-amount">Category Budget Limit ($):</label>
+          <input type="number" id="category-amount" min="0" placeholder="e.g. 50">
+        </div>
+
+        <button type="button" id="btn-add-category" class="btn-secondary">+ Add Category</button>
+
+        <div id="category-list-container">
+          <h4>Configured Categories:</h4>
+          <ul id="active-categories"></ul>
+        </div>
+
+        <button type="submit" id="btn-to-dashboard" class="btn-submit">Save & Go to Dashboard</button>
+      </form>
 </section>
     <script src="script.js"></script>
   </body>
