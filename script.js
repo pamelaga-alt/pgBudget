@@ -1,7 +1,7 @@
 console.log("Budget Tracker initialized!");
 
 // -------------------------------------------------------------
-// 1. STATE INITIALIZATION & MONTHLY TRACKING
+// 1. STATE INITIALIZATION & STORAGE
 // -------------------------------------------------------------
 const STORAGE_KEY = "budget_tracker_app_state";
 
@@ -20,6 +20,7 @@ let appState = {
 
 let pieChartInstance = null;
 let currentAdviceHtml = "";
+const openHistoryCards = new Set();
 
 function getCurrentMonthYear() {
   const date = new Date();
@@ -45,7 +46,6 @@ function loadStateFromLocalStorage() {
 }
 
 loadStateFromLocalStorage();
-const openHistoryCards = new Set();
 
 // -------------------------------------------------------------
 // 2. DOM ELEMENTS
@@ -58,16 +58,25 @@ const btnNewTracker = document.getElementById('btn-new-tracker');
 const btnOldTracker = document.getElementById('btn-old-tracker');
 const btnBackHome = document.getElementById('btn-back-home');
 
-// Setup Form
+// Feature 3: Lump-Sum Elements
+const isLumpSumCheck = document.getElementById('is-lump-sum-check');
+const lumpSumCalculator = document.getElementById('lump-sum-calculator');
+const lumpSumAmount = document.getElementById('lump-sum-amount');
+const lumpSumMonths = document.getElementById('lump-sum-months');
+const btnCalcLumpSum = document.getElementById('btn-calc-lump-sum');
+
+// Setup Form Elements
 const setupForm = document.getElementById('setup-form');
+const totalBudgetInput = document.getElementById('total-budget');
 const categorySelect = document.getElementById('category-select');
 const customCategoryGroup = document.getElementById('custom-category-group');
 const customCategoryNameInput = document.getElementById('custom-category-name');
 const categoryAmountInput = document.getElementById('category-amount');
+const isCategoryRecurring = document.getElementById('is-category-recurring');
 const btnAddCategory = document.getElementById('btn-add-category');
 const activeCategoriesList = document.getElementById('active-categories');
 
-// Dashboard
+// Dashboard Elements
 const dashTrackerName = document.getElementById('dash-tracker-name');
 const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
@@ -78,16 +87,18 @@ const expenseNoteInput = document.getElementById('expense-note-input');
 const expenseAmountInput = document.getElementById('expense-amount-input');
 const btnAddExpense = document.getElementById('btn-add-expense');
 const insightsList = document.getElementById('insights-list');
+const btnExportCSV = document.getElementById('btn-export-csv');
 
-// Floating Modal
+// Modal Elements
 const btnFloatingAddCat = document.getElementById('btn-floating-add-cat');
 const modalAddCategory = document.getElementById('modal-add-category');
 const btnSaveModalCat = document.getElementById('btn-save-modal-cat');
 const btnCloseModal = document.getElementById('btn-close-modal');
 const dashNewCatName = document.getElementById('dash-new-cat-name');
 const dashNewCatLimit = document.getElementById('dash-new-cat-limit');
+const dashNewCatRecurring = document.getElementById('dash-new-cat-recurring');
 
-// Sidebar History
+// Sidebar History Elements
 const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const btnCloseSidebar = document.getElementById('btn-close-sidebar');
 const sidebarHistory = document.getElementById('sidebar-history');
@@ -100,7 +111,7 @@ const summaryReportDetails = document.getElementById('summary-report-details');
 const btnKeepBudget = document.getElementById('btn-keep-budget');
 const btnNewBudget = document.getElementById('btn-new-budget');
 
-// Advice Modal Elements
+// Advice Modal
 const btnToggleAdvice = document.getElementById('btn-toggle-advice');
 const modalAdvice = document.getElementById('modal-advice');
 const adviceContent = document.getElementById('advice-content');
@@ -114,13 +125,14 @@ function navigateTo(targetPage) {
 }
 
 // -------------------------------------------------------------
-// 3. NAVIGATION & SETUP FORM
+// 3. NAVIGATION & SETUP FORM LOGIC
 // -------------------------------------------------------------
 btnNewTracker.addEventListener('click', () => {
   configuredCategories = [];
   activeCategoriesList.innerHTML = '';
   setupForm.reset();
   customCategoryGroup.classList.add('hidden');
+  lumpSumCalculator.classList.add('hidden');
   navigateTo(page2);
 });
 
@@ -138,6 +150,26 @@ btnBackHome.addEventListener('click', () => {
   navigateTo(page1);
 });
 
+// Feature 3: Lump-Sum Calculation Handler
+isLumpSumCheck.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    lumpSumCalculator.classList.remove('hidden');
+  } else {
+    lumpSumCalculator.classList.add('hidden');
+  }
+});
+
+btnCalcLumpSum.addEventListener('click', () => {
+  const amount = parseFloat(lumpSumAmount.value) || 0;
+  const months = parseFloat(lumpSumMonths.value) || 1;
+  if (amount > 0 && months > 0) {
+    const monthlyCeiling = (amount / months).toFixed(2);
+    totalBudgetInput.value = monthlyCeiling;
+  } else {
+    alert("Please enter a valid lump sum amount and number of months.");
+  }
+});
+
 categorySelect.addEventListener('change', (e) => {
   if (e.target.value === 'Other') {
     customCategoryGroup.classList.remove('hidden');
@@ -147,9 +179,11 @@ categorySelect.addEventListener('change', (e) => {
   }
 });
 
+// Feature 1: Category Setup with Recurring Flag
 btnAddCategory.addEventListener('click', () => {
   let categoryName = categorySelect.value;
   const amount = parseFloat(categoryAmountInput.value);
+  const isRecurring = isCategoryRecurring.checked;
 
   if (categoryName === 'Other') categoryName = customCategoryNameInput.value.trim();
 
@@ -167,16 +201,18 @@ btnAddCategory.addEventListener('click', () => {
     name: categoryName,
     limit: amount,
     spent: 0,
+    isRecurring: isRecurring,
     history: []
   });
 
   const listItem = document.createElement('li');
-  listItem.textContent = `${categoryName}: $${amount.toFixed(2)}`;
+  listItem.textContent = `${categoryName}: $${amount.toFixed(2)} ${isRecurring ? '🔄 (Recurring Bill)' : ''}`;
   activeCategoriesList.appendChild(listItem);
 
   categorySelect.value = '';
   customCategoryNameInput.value = '';
   categoryAmountInput.value = '';
+  isCategoryRecurring.checked = false;
   customCategoryGroup.classList.add('hidden');
 });
 
@@ -184,7 +220,7 @@ setupForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
   const trackerName = document.getElementById('tracker-name').value;
-  const totalBudget = parseFloat(document.getElementById('total-budget').value);
+  const totalBudget = parseFloat(totalBudgetInput.value);
   const totalEarnings = parseFloat(document.getElementById('total-earnings').value) || 0;
 
   appState.activeTracker = {
@@ -203,7 +239,7 @@ setupForm.addEventListener('submit', (e) => {
 });
 
 // -------------------------------------------------------------
-// 4. MONTHLY ROLLOVER CHECK & SUMMARY MODAL
+// 4. MONTHLY ROLLOVER & SUMMARY
 // -------------------------------------------------------------
 function checkMonthlyRollover() {
   const currentMonth = getCurrentMonthYear();
@@ -277,7 +313,7 @@ btnNewBudget.addEventListener('click', () => {
 });
 
 // -------------------------------------------------------------
-// 5. SIDEBAR HISTORY LOGIC
+// 5. SIDEBAR HISTORY
 // -------------------------------------------------------------
 btnToggleSidebar.addEventListener('click', () => {
   renderSidebarHistory();
@@ -327,6 +363,7 @@ btnAddEarnings.addEventListener('click', () => {
 btnFloatingAddCat.addEventListener('click', () => {
   dashNewCatName.value = '';
   dashNewCatLimit.value = '';
+  dashNewCatRecurring.checked = false;
   modalAddCategory.classList.remove('hidden');
 });
 
@@ -337,6 +374,7 @@ btnCloseModal.addEventListener('click', () => {
 btnSaveModalCat.addEventListener('click', () => {
   const name = dashNewCatName.value.trim();
   const limit = parseFloat(dashNewCatLimit.value);
+  const isRecurring = dashNewCatRecurring.checked;
 
   if (!name || isNaN(limit) || limit <= 0) {
     alert("Please enter a valid category name and limit.");
@@ -348,6 +386,7 @@ btnSaveModalCat.addEventListener('click', () => {
     name: name,
     limit: limit,
     spent: 0,
+    isRecurring: isRecurring,
     history: []
   });
 
@@ -384,7 +423,7 @@ btnAddExpense.addEventListener('click', () => {
   }
 });
 
-// Dynamic Pie Chart with Percentage Tooltips & Unused Budget Slice
+// Dynamic Pie Chart
 function renderPieChart() {
   const tracker = appState.activeTracker;
   if (!tracker) return;
@@ -440,7 +479,7 @@ function renderPieChart() {
   });
 }
 
-// Automated Insights & Advice Modal Trigger
+// Insights & Advice Modal Trigger
 function updateInsightsWidget() {
   insightsList.innerHTML = '';
   const tracker = appState.activeTracker;
@@ -454,7 +493,6 @@ function updateInsightsWidget() {
     return;
   }
 
-  // Render ONLY percentage bullet points in the note
   tracker.categories.forEach(cat => {
     if (cat.spent > 0) {
       const percentage = ((cat.spent / totalSpent) * 100).toFixed(1);
@@ -464,7 +502,6 @@ function updateInsightsWidget() {
     }
   });
 
-  // Build detailed advice for the modal
   const overspentCats = [];
   const underspentCats = [];
 
@@ -498,7 +535,6 @@ function updateInsightsWidget() {
   }
 }
 
-// Advice Modal Event Listeners
 btnToggleAdvice.addEventListener('click', () => {
   adviceContent.innerHTML = currentAdviceHtml;
   modalAdvice.classList.remove('hidden');
@@ -553,9 +589,12 @@ function renderDashboard() {
       `;
     }
 
+    // Feature 1 Display Badge: Recurring vs Variable
+    const icon = cat.isRecurring ? '🔄' : '📌';
+
     note.innerHTML = `
       <div>
-        <div class="postit-header">📌 ${cat.name}</div>
+        <div class="postit-header">${icon} ${cat.name}</div>
         <div class="postit-details">
           <p><strong>Spent:</strong> $${cat.spent.toFixed(2)}</p>
           <p><strong>Limit:</strong> $${cat.limit.toFixed(2)}</p>
@@ -568,7 +607,7 @@ function renderDashboard() {
         </div>
         <div class="battery-text">${fillPercent.toFixed(1)}% Used</div>
         ${historyHtml}
-        <div class="history-hint">${isHistoryOpen ? '▲ Click to hide history' : '▼ Click to view history'}</div>
+        <div class="history-hint">${isHistoryOpen ? '▲ Hide history' : '▼ View history'}</div>
       </div>
     `;
 
@@ -587,3 +626,36 @@ function renderDashboard() {
   renderPieChart();
   updateInsightsWidget();
 }
+
+// -------------------------------------------------------------
+// 7. FEATURE 5: CSV EXPORT FUNCTIONALITY
+// -------------------------------------------------------------
+btnExportCSV.addEventListener('click', () => {
+  const tracker = appState.activeTracker;
+  if (!tracker) return;
+
+  let csvRows = [];
+  csvRows.push(`Budget Tracker Name,${tracker.name}`);
+  csvRows.push(`Month/Year,${tracker.monthYear}`);
+  csvRows.push(`Total Monthly Budget Ceiling,$${tracker.totalBudget.toFixed(2)}`);
+  csvRows.push(`Total Earnings,$${tracker.totalEarnings.toFixed(2)}`);
+  csvRows.push("");
+  csvRows.push("Category Name,Type,Limit ($),Spent ($),Usage (%)");
+
+  tracker.categories.forEach(cat => {
+    const usage = ((cat.spent / cat.limit) * 100).toFixed(1);
+    const type = cat.isRecurring ? "Recurring" : "Variable";
+    csvRows.push(`"${cat.name}",${type},${cat.limit.toFixed(2)},${cat.spent.toFixed(2)},${usage}%`);
+  });
+
+  const csvString = csvRows.join("\n");
+  const blob = new Blob([csvString], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', `${tracker.name.replace(/\s+/g, '_')}_Summary.csv`);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
