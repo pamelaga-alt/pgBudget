@@ -5,22 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monthly Budget Tracker</title>
     <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
+
     <section id="page-1" class="screen">
       <h1>Budget Tracker</h1>
       <p>Track all your spending right here! Plus, manage your categories and get monthly reports!</p>
- <div class="button-group">
-   <button id="btn-new-tracker"> New Tracker</button>
-   <button id="btn-old-tracker"> Continue To Existing Tracker</button>
- </div>
+      <div class="button-group">
+        <button id="btn-new-tracker"> New Tracker</button>
+        <button id="btn-old-tracker"> Continue To Existing Tracker</button>
+      </div>
     </section>
+
     <section id="page-2" class="screen hidden">
-  <h2>Set Up Your Budget</h2>
+      <h2>Set Up Your Budget</h2>
       <form id="setup-form">
         <div class="input-group">
- <label for="tracker-name">Tracker Name:</label>
+          <label for="tracker-name">Tracker Name:</label>
           <input type="text" id="tracker-name" placeholder="e.g. August Budget" required>
         </div>
 
@@ -68,55 +70,85 @@
 
         <button type="submit" id="btn-to-dashboard" class="btn-submit">Save & Go to Dashboard</button>
       </form>
-</section>
-  <section id="page-dashboard" class="screen hidden">
-  <h2 id="dash-tracker-name">Dashboard</h2>
-  
-  <div id="dash-summary">
-    <p><strong>Total Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
-    <p><strong>Earnings:</strong> $<span id="dash-earnings">0.00</span></p>
-  </div>
+    </section>
 
-  <hr class="divider">
+    <section id="page-dashboard" class="screen hidden">
+      
+      <button id="btn-toggle-sidebar" class="sidebar-toggle-btn">📂 History</button>
 
-  <div class="add-expense-box">
-    <h3>Log New Spending</h3>
-    <div class="expense-inputs">
-      <select id="expense-category-select">
-        <option value="" disabled selected>Select Category</option>
-      </select>
-      <input type="number" id="expense-amount-input" min="0" step="0.01" placeholder="Amount ($)">
-      <button id="btn-add-expense" class="btn-submit">+ Log Spending</button>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <h3>Category Breakdown</h3>
-  <div id="postit-container" class="postit-grid"></div>
-
-  <button id="btn-back-home" class="btn-secondary" style="margin-top: 2rem;">Back to Start</button>
-
-  <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
-
-  <div id="modal-add-category" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h3>Add New Category</h3>
-      <div class="input-group">
-        <label for="dash-new-cat-name">Category Name:</label>
-        <input type="text" id="dash-new-cat-name" placeholder="e.g. Subscriptions">
+      <h2 id="dash-tracker-name">Dashboard</h2>
+      
+      <div id="dash-summary">
+        <p><strong>Total Budget:</strong> $<span id="dash-total-budget">0.00</span></p>
+        <p><strong>Earnings:</strong> $<span id="dash-earnings">0.00</span></p>
       </div>
-      <div class="input-group">
-        <label for="dash-new-cat-limit">Budget Limit ($):</label>
-        <input type="number" id="dash-new-cat-limit" min="1" placeholder="e.g. 30">
+
+      <hr class="divider">
+
+      <div class="add-expense-box">
+        <h3>Log New Spending</h3>
+        <div class="expense-inputs">
+          <select id="expense-category-select">
+            <option value="" disabled selected>Select Category</option>
+          </select>
+          <input type="number" id="expense-amount-input" min="0" step="0.01" placeholder="Amount ($)">
+          <button id="btn-add-expense" class="btn-submit">+ Log Spending</button>
+        </div>
       </div>
-      <div class="modal-buttons">
-        <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
-        <button id="btn-close-modal" class="btn-secondary">Cancel</button>
+
+      <hr class="divider">
+
+      <h3>Category Breakdown</h3>
+      <div id="postit-container" class="postit-grid"></div>
+
+      <button id="btn-back-home" class="btn-secondary" style="margin-top: 2rem;">Back to Start</button>
+
+      <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
+
+      <div id="modal-add-category" class="modal-overlay hidden">
+        <div class="modal-content">
+          <h3>Add New Category</h3>
+          <div class="input-group">
+            <label for="dash-new-cat-name">Category Name:</label>
+            <input type="text" id="dash-new-cat-name" placeholder="e.g. Subscriptions">
+          </div>
+          <div class="input-group">
+            <label for="dash-new-cat-limit">Budget Limit ($):</label>
+            <input type="number" id="dash-new-cat-limit" min="1" placeholder="e.g. 30">
+          </div>
+          <div class="modal-buttons">
+            <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
+            <button id="btn-close-modal" class="btn-secondary">Cancel</button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  </section>
+
+      <div id="sidebar-history" class="sidebar closed">
+        <div class="sidebar-header">
+          <h3>Past Monthly Spendings</h3>
+          <button id="btn-close-sidebar" class="btn-close">✕</button>
+        </div>
+        <div id="history-list-container" class="sidebar-content">
+          <p class="empty-msg">No archived months yet.</p>
+        </div>
+      </div>
+
+      <div id="modal-monthly-summary" class="modal-overlay hidden">
+        <div class="modal-content">
+          <h2>📅 New Month Summary!</h2>
+          <p id="summary-month-name" style="font-weight: bold; margin-bottom: 10px;"></p>
+          <div id="summary-report-details" class="summary-details"></div>
+          
+          <p style="margin-top: 15px; font-weight: bold;">How would you like to proceed?</p>
+          <div class="modal-buttons vertical">
+            <button id="btn-keep-budget" class="btn-submit">Keep Same Budget (Reset Spendings)</button>
+            <button id="btn-new-budget" class="btn-secondary">Start Fresh (Setup New Budget)</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
     <script src="script.js"></script>
   </body>
 </html>
