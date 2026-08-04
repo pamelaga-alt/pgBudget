@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Budget Tracker</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Press+Start+2P&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <section id="page-1" class="page-container">
     <div class="hero-card">
-      <h1>💰 Monthly Budget Tracker</h1>
+      <h1 class="cute-title">💰 Monthly Budget Tracker</h1>
       <p>Take control of your spending with custom limits, transaction logs, and visual insights.</p>
       <div class="landing-buttons">
         <button id="btn-new-tracker" class="btn-primary">Create New Budget Tracker</button>
@@ -23,7 +24,7 @@
   <section id="page-2" class="page-container hidden">
     <div class="form-card">
       <button id="btn-back-home" class="btn-text">← Back to Home</button>
-      <h2>⚙️ Set Up Your Budget</h2>
+      <h2 class="cute-title">⚙️ Set Up Your Budget</h2>
       <form id="setup-form">
         <div class="input-group">
           <label for="tracker-name">Tracker Name:</label>
@@ -58,7 +59,7 @@
         </div>
 
         <hr>
-        <h3>Categories</h3>
+        <h3 class="pixel-font" style="font-size: 14px;">Categories</h3>
         <div class="category-builder">
           <div class="input-group">
             <label for="category-select">Category Name:</label>
@@ -98,8 +99,17 @@
   </section>
 
   <section id="page-dashboard" class="page-container hidden">
+    <div class="flower-garden">
+      <div class="flower f1">🌸</div>
+      <div class="flower f2">🌷</div>
+      <div class="flower f3">🌼</div>
+      <div class="flower f4">🌸</div>
+      <div class="flower f5">🌷</div>
+      <div class="flower f6">🌼</div>
+    </div>
+
     <header class="dash-header">
-      <h2 id="dash-tracker-name">My Dashboard</h2>
+      <h2 id="dash-tracker-name" class="cute-title">My Dashboard</h2>
     </header>
 
     <div class="metrics-row">
@@ -130,12 +140,12 @@
       </select>
     </div>
 
-    <h3>📌 Spending Categories & Savings Goals</h3>
+    <h3 class="pixel-font" style="font-size: 14px; margin-bottom: 10px;">📌 Spending Categories & Savings Goals</h3>
     <div id="postit-container" class="postit-grid"></div>
 
     <div class="card-section" style="margin-top: 30px;">
       <h3>💡 Insights & Advice</h3>
-      <div id="inline-advice-content" style="margin-bottom: 15px; color: #cbd5e1;"></div>
+      <div id="inline-advice-content" style="margin-bottom: 15px; color: #475569;"></div>
       <ul id="insights-list" class="insights-list"></ul>
     </div>
 
@@ -173,8 +183,8 @@
 
     <div id="modal-confirm" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3 id="confirm-modal-title">⚠️ Confirmation Required</h3>
-        <p id="confirm-modal-msg" style="margin-bottom: 20px; color: #cbd5e1;"></p>
+        <h3 class="cute-title">⚠️ Confirmation Required</h3>
+        <p id="confirm-modal-msg" style="margin-bottom: 20px; color: #475569;"></p>
         <div class="modal-buttons">
           <button id="btn-confirm-yes" class="btn-submit" style="background-color: #ef4444;">Confirm</button>
           <button id="btn-confirm-no" class="btn-secondary">Cancel</button>
@@ -184,7 +194,7 @@
 
     <div id="modal-edit-budget" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3>✏️ Edit Budget Settings</h3>
+        <h3 class="cute-title">✏️ Edit Budget Settings</h3>
         <div class="input-group">
           <label for="edit-tracker-name">Tracker Name:</label>
           <input type="text" id="edit-tracker-name" placeholder="e.g. Fall Semester Budget">
@@ -202,7 +212,7 @@
 
     <div id="modal-add-earnings" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3>💵 Add Earnings</h3>
+        <h3 class="cute-title">💵 Add Earnings</h3>
         <div class="input-group">
           <label for="input-earnings-amount">Amount ($):</label>
           <input type="number" id="input-earnings-amount" step="0.01" placeholder="e.g. 100.00">
@@ -216,7 +226,7 @@
 
     <div id="modal-add-category" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3>📌 Add New Category</h3>
+        <h3 class="cute-title">📌 Add New Category</h3>
         <div class="input-group">
           <label for="dash-new-cat-name">Category Name:</label>
           <input type="text" id="dash-new-cat-name" placeholder="e.g. Supplies">
@@ -238,7 +248,7 @@
 
     <div id="modal-add-goal" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3>🎯 New Savings Goal</h3>
+        <h3 class="cute-title">🎯 New Savings Goal</h3>
         <div class="input-group">
           <label for="goal-name">Goal Name:</label>
           <input type="text" id="goal-name" placeholder="e.g. Emergency Fund">
@@ -256,7 +266,7 @@
 
     <div id="modal-edit-expense" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3>✏️ Edit Transaction</h3>
+        <h3 class="cute-title">✏️ Edit Transaction</h3>
         <div class="input-group">
           <label for="edit-expense-note">Description:</label>
           <input type="text" id="edit-expense-note" placeholder="e.g. Groceries">
@@ -274,7 +284,7 @@
 
     <div id="modal-monthly-summary" class="modal-overlay hidden">
       <div class="modal-content">
-        <h3 id="summary-month-name">Monthly Report</h3>
+        <h3 id="summary-month-name" class="cute-title">Monthly Report</h3>
         <div id="summary-report-details"></div>
         <div class="modal-buttons">
           <button id="btn-keep-budget" class="btn-submit">Keep Same Limits for Next Month</button>
@@ -285,7 +295,7 @@
 
     <aside id="sidebar-history" class="sidebar closed">
       <div class="sidebar-header">
-        <h3>📁 Past Logs & Archives</h3>
+        <h3 class="cute-title">📁 Past Logs & Archives</h3>
         <button id="btn-close-sidebar" class="btn-text">✕</button>
       </div>
       <div id="history-list-container" class="sidebar-content"></div>
