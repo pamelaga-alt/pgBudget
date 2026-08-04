@@ -116,13 +116,6 @@
       </div>
     </div>
 
-    <div class="dashboard-controls">
-      <input type="text" id="input-search-expenses" placeholder="🔍 Search notes (e.g. Trader Joe's)...">
-      <select id="select-filter-category">
-        <option value="ALL">All Categories</option>
-      </select>
-    </div>
-
     <div class="card-section">
       <h3>💸 Log a New Expense</h3>
       <div class="expense-inputs">
@@ -131,6 +124,13 @@
         <input type="number" id="expense-amount-input" step="0.01" placeholder="Amount ($)">
         <button id="btn-add-expense" class="btn-submit">Log Expense</button>
       </div>
+    </div>
+
+    <div class="dashboard-controls">
+      <input type="text" id="input-search-expenses" placeholder="🔍 Search notes (e.g. Trader Joe's)...">
+      <select id="select-filter-category">
+        <option value="ALL">All Categories</option>
+      </select>
     </div>
 
     <h3>📌 Spending Categories & Savings Goals</h3>
@@ -142,9 +142,11 @@
       <ul id="insights-list" class="insights-list"></ul>
     </div>
 
-    <div class="card-section" style="margin-top: 30px;">
+    <div class="card-section chart-card-section" style="margin-top: 30px;">
       <h3>📊 Spending Breakdown</h3>
-      <canvas id="spendingPieChart"></canvas>
+      <div class="chart-wrapper">
+        <canvas id="spendingPieChart"></canvas>
+      </div>
     </div>
 
     <div class="footer-export">
