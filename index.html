@@ -159,6 +159,7 @@
 
     <div class="fab-container">
       <div id="fab-options" class="fab-options hidden">
+        <button id="btn-fab-edit-budget" class="fab-option-btn">✏️ Edit Budget</button>
         <button id="btn-fab-add-earnings" class="fab-option-btn">💵 Add Earnings</button>
         <button id="btn-fab-add-cat" class="fab-option-btn">📌 Add Category</button>
         <button id="btn-fab-add-goal" class="fab-option-btn">🎯 Add Savings Goal</button>
@@ -177,6 +178,24 @@
         <div class="modal-buttons">
           <button id="btn-confirm-yes" class="btn-submit" style="background-color: #ef4444;">Confirm</button>
           <button id="btn-confirm-no" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-edit-budget" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>✏️ Edit Budget Settings</h3>
+        <div class="input-group">
+          <label for="edit-tracker-name">Tracker Name:</label>
+          <input type="text" id="edit-tracker-name" placeholder="e.g. Fall Semester Budget">
+        </div>
+        <div class="input-group">
+          <label for="edit-total-budget">Total Monthly Budget ($):</label>
+          <input type="number" id="edit-total-budget" step="0.01" placeholder="e.g. 750.00">
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-save-edit-budget" class="btn-submit">Save Changes</button>
+          <button id="btn-close-edit-budget-modal" class="btn-secondary">Cancel</button>
         </div>
       </div>
     </div>
