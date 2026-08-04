@@ -15,14 +15,14 @@ body {
   min-height: 100vh;
 }
 
-/* Update your screen/dashboard container */
 .screen {
-  width: 90%;            /* Fills 90% of the screen width */
-  max-width: 1200px;     /* Allows it to expand much wider on big monitors */
-  margin: 0 auto;        /* Centers the container */
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
 }
+
 h1, h2, h3, h4 {
   margin-bottom: 1rem;
 }
@@ -50,6 +50,25 @@ p {
   font-size: 0.9rem;
   margin-bottom: 0.3rem;
   color: #cbd5e1;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 0 !important;
+}
+
+.checkbox-label input {
+  width: auto !important;
+}
+
+.calc-box {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
 }
 
 .input-group input, 
@@ -129,7 +148,7 @@ button:hover {
   display: none !important;
 }
 
-/* --- Post-It Note Dashboard Styles --- */
+/* Post-It Dashboard Styles */
 .add-expense-box {
   background-color: #0f172a;
   padding: 1rem;
@@ -154,16 +173,16 @@ button:hover {
 
 .postit-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
-  width: 100%;                          /* Fills full width of dashboard */
+  width: 100%;
   margin-bottom: 2rem;
 }
+
 .postit-note {
   background-color: #fef08a;
   color: #1e293b;
   width: 100%;
-  max-width: 220px;
   min-height: 200px;
   padding: 15px;
   border-radius: 4px;
@@ -227,6 +246,25 @@ button:hover {
   margin-top: 4px;
 }
 
+.history-hint {
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 6px;
+  color: #854d0e;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 2rem;
+}
+
+.chart-container {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+/* Modals & Sidebar */
 .floating-btn {
   position: fixed;
   bottom: 25px;
@@ -292,188 +330,59 @@ button:hover {
 .history-list {
   list-style: none;
   padding: 0;
-  margin: 4px 0 0 0;
 }
 
 .history-list li {
   display: flex;
   justify-content: space-between;
-  padding: 2px 0;
-}
-
-.history-hint {
-  font-size: 0.7rem;
-  color: #713f12;
-  text-align: center;
-  margin-top: 6px;
-  font-style: italic;
-}
-
-/* Sidebar Drawer */
-.sidebar-toggle-btn {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  width: auto;
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  background-color: #334155;
-  border-radius: 6px;
-  z-index: 50;
+  margin-bottom: 4px;
 }
 
 .sidebar {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 280px;
+  right: 0;
+  width: 300px;
   height: 100vh;
-  background-color: #0f172a;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
-  z-index: 300;
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
+  background: #1e293b;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.5);
   padding: 20px;
-  text-align: left;
+  transition: transform 0.3s ease;
+  z-index: 150;
 }
 
 .sidebar.closed {
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 
 .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .btn-close {
   background: none;
   border: none;
-  color: #f8fafc;
+  color: white;
   font-size: 1.2rem;
-  cursor: pointer;
   width: auto;
-  padding: 0;
+  cursor: pointer;
 }
 
-.sidebar-content {
-  overflow-y: auto;
-  flex: 1;
-}
-
-.archived-month-card {
-  background: #1e293b;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  border-left: 4px solid #6366f1;
-}
-
-.archived-month-card h4 {
-  margin-bottom: 5px;
-  color: #6366f1;
-}
-
-.archived-month-card p {
-  margin-bottom: 4px;
-  font-size: 0.85rem;
-}
-
-.summary-details {
-  background: #0f172a;
-  padding: 12px;
-  border-radius: 8px;
-  max-height: 180px;
-  overflow-y: auto;
-  font-size: 0.85rem;
-}
-
-/* Chart Container */
-.chart-container {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  margin: 1rem auto;
-}
-
-/* Inline Add Button */
 .btn-inline-add {
-  display: inline-block;
   width: auto;
   padding: 2px 8px;
+  margin-left: 8px;
   font-size: 0.8rem;
-  margin-left: 6px;
-  background-color: #10b981;
+  display: inline-block;
 }
 
-.btn-inline-add:hover {
-  background-color: #059669;
-}
-
-/* Insight Sticky Note */
-.postit-note.insight-note {
-  background-color: #bae6fd;
-  max-width: 100%;
-  transform: rotate(0deg);
-  min-height: auto;
-  margin: 1rem 0;
-}
-
-.postit-note.insight-note:hover {
-  transform: scale(1.01);
-}
-
-.insights-list {
-  list-style: square;
-  padding-left: 20px;
-  font-size: 0.85rem;
-  color: #0f172a;
-  margin-top: 5px;
-}
-
-.insights-list li {
-  margin-bottom: 4px;
-}
-/* Position the Insight Note as a relative container */
-.postit-note.insight-note {
-  position: relative;
-  padding-bottom: 40px; /* Space for the corner button */
-}
-
-/* Exclamation point button in bottom-left corner */
 .btn-advice-corner {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border-radius: 50%;
-  background-color: #f59e0b;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 0.85rem;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.btn-advice-corner:hover {
-  background-color: #d97706;
-  transform: scale(1.1);
-}
-.add-expense-box,
-.postit-note.insight-note,
-.chart-container {
-  width: 100%;
-  box-sizing: border-box;
+  width: auto;
+  padding: 4px 8px;
+  margin-top: 10px;
+  background: #eab308;
+  color: #0f172a;
 }
