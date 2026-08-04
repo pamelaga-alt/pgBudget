@@ -96,7 +96,27 @@
   <div id="postit-container" class="postit-grid"></div>
 
   <button id="btn-back-home" class="btn-secondary" style="margin-top: 2rem;">Back to Start</button>
-</section>
+
+  <button id="btn-floating-add-cat" class="floating-btn" title="Add New Category">+</button>
+
+  <div id="modal-add-category" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3>Add New Category</h3>
+      <div class="input-group">
+        <label for="dash-new-cat-name">Category Name:</label>
+        <input type="text" id="dash-new-cat-name" placeholder="e.g. Subscriptions">
+      </div>
+      <div class="input-group">
+        <label for="dash-new-cat-limit">Budget Limit ($):</label>
+        <input type="number" id="dash-new-cat-limit" min="1" placeholder="e.g. 30">
+      </div>
+      <div class="modal-buttons">
+        <button id="btn-save-modal-cat" class="btn-submit">Save Category</button>
+        <button id="btn-close-modal" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+  </section>
     <script src="script.js"></script>
   </body>
 </html>
