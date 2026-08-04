@@ -15,15 +15,14 @@ body {
   min-height: 100vh;
 }
 
+/* Update your screen/dashboard container */
 .screen {
-  background-color: #1e293b;
+  width: 90%;            /* Fills 90% of the screen width */
+  max-width: 1200px;     /* Allows it to expand much wider on big monitors */
+  margin: 0 auto;        /* Centers the container */
   padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  text-align: center;
+  box-sizing: border-box;
 }
-
 h1, h2, h3, h4 {
   margin-bottom: 1rem;
 }
@@ -155,11 +154,11 @@ button:hover {
 
 .postit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
   gap: 20px;
+  width: 100%;                          /* Fills full width of dashboard */
   margin-bottom: 2rem;
 }
-
 .postit-note {
   background-color: #fef08a;
   color: #1e293b;
@@ -471,4 +470,10 @@ button:hover {
 .btn-advice-corner:hover {
   background-color: #d97706;
   transform: scale(1.1);
+}
+.add-expense-box,
+.postit-note.insight-note,
+.chart-container {
+  width: 100%;
+  box-sizing: border-box;
 }
