@@ -91,12 +91,12 @@ const dashTotalBudget = document.getElementById('dash-total-budget');
 const dashEarnings = document.getElementById('dash-earnings');
 const btnAddEarnings = document.getElementById('btn-add-earnings');
 const postitContainer = document.getElementById('postit-container');
-const savingsGoalsContainer = document.getElementById('savings-goals-container');
 const expenseCategorySelect = document.getElementById('expense-category-select');
 const expenseNoteInput = document.getElementById('expense-note-input');
 const expenseAmountInput = document.getElementById('expense-amount-input');
 const btnAddExpense = document.getElementById('btn-add-expense');
 const insightsList = document.getElementById('insights-list');
+const inlineAdviceContent = document.getElementById('inline-advice-content');
 const btnExportCSV = document.getElementById('btn-export-csv');
 
 const btnFloatingAddCat = document.getElementById('btn-floating-add-cat');
@@ -125,11 +125,6 @@ const summaryMonthName = document.getElementById('summary-month-name');
 const summaryReportDetails = document.getElementById('summary-report-details');
 const btnKeepBudget = document.getElementById('btn-keep-budget');
 const btnNewBudget = document.getElementById('btn-new-budget');
-
-const btnToggleAdvice = document.getElementById('btn-toggle-advice');
-const modalAdvice = document.getElementById('modal-advice');
-const adviceContent = document.getElementById('advice-content');
-const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
 
 const modalEditExpense = document.getElementById('modal-edit-expense');
 const btnSaveEditExpense = document.getElementById('btn-save-edit-expense');
@@ -653,7 +648,7 @@ function updateInsightsWidget() {
 
   if (totalSpent === 0) {
     insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns!</li>';
-    currentAdviceHtml = '<p>No spending logged yet! Log expenses to get tailored advice.</p>';
+    inlineAdviceContent.innerHTML = '<p>No spending logged yet! Log expenses to get tailored advice.</p>';
     return;
   }
 
@@ -679,7 +674,7 @@ function updateInsightsWidget() {
   });
 
   if (overspentCats.length === 0) {
-    currentAdviceHtml = `<p>✅ <strong>Great job!</strong> You are within budget for all categories. Keep it up!</p>`;
+    inlineAdviceContent.innerHTML = `<p>✅ <strong>Great job!</strong> You are within budget for all categories. Keep it up!</p>`;
   } else {
     let adviceList = '<ul style="list-style-type: none; padding-left: 0;">';
     
@@ -695,18 +690,9 @@ function updateInsightsWidget() {
     });
 
     adviceList += '</ul>';
-    currentAdviceHtml = adviceList;
+    inlineAdviceContent.innerHTML = adviceList;
   }
 }
-
-btnToggleAdvice.addEventListener('click', () => {
-  adviceContent.innerHTML = currentAdviceHtml;
-  modalAdvice.classList.remove('hidden');
-});
-
-btnCloseAdviceModal.addEventListener('click', () => {
-  modalAdvice.classList.add('hidden');
-});
 
 function renderDashboard() {
   const tracker = appState.activeTracker;
@@ -735,14 +721,13 @@ function renderDashboard() {
 
   postitContainer.innerHTML = '';
 
+  // Render Spending Categories
   tracker.categories.forEach(cat => {
-    // Filter out categories if a specific category is selected
     if (categoryFilter !== 'ALL' && cat.id !== categoryFilter) return;
 
     let filteredHistory = cat.history || [];
     if (searchQuery) {
       filteredHistory = filteredHistory.filter(h => h.item.toLowerCase().includes(searchQuery));
-      // Hide card if searching and no transactions match
       if (filteredHistory.length === 0) return;
     }
 
@@ -756,7 +741,6 @@ function renderDashboard() {
     const note = document.createElement('div');
     note.className = 'postit-note';
 
-    // Auto expand history if searching
     const isHistoryOpen = openHistoryCards.has(cat.id) || searchQuery.length > 0;
     const icon = cat.isRecurring ? '🔄' : '📌';
 
@@ -851,7 +835,7 @@ function renderDashboard() {
     postitContainer.appendChild(note);
   });
 
-  // Render Savings Goals
+  // Render Savings Goals directly inside the same grid section alongside categories
   renderSavingsGoals();
 
   renderPieChart();
@@ -859,15 +843,12 @@ function renderDashboard() {
 }
 
 function renderSavingsGoals() {
-  savingsGoalsContainer.innerHTML = '';
   const goals = appState.activeTracker.savingsGoals || [];
-
-  if (goals.length === 0) {
-    savingsGoalsContainer.innerHTML = '<p class="empty-msg" style="color: #94a3b8;">No savings goals added yet. Click "+ Add Savings Goal" to set one!</p>';
-    return;
-  }
+  if (categoryFilter !== 'ALL') return; // Hide savings goals if a specific category is filtered
 
   goals.forEach(goal => {
+    if (searchQuery && !goal.name.toLowerCase().includes(searchQuery)) return;
+
     const progressPercent = Math.min((goal.saved / goal.target) * 100, 100);
 
     const goalCard = document.createElement('div');
@@ -900,7 +881,7 @@ function renderSavingsGoals() {
       addFundsToGoal(goal.id);
     });
 
-    savingsGoalsContainer.appendChild(goalCard);
+    postitContainer.appendChild(goalCard);
   });
 }
 
