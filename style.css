@@ -38,6 +38,25 @@ p {
   margin: 1.5rem 0;
 }
 
+/* Dashboard Header & History Toggle */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sidebar-toggle-btn {
+  width: auto;
+  padding: 8px 16px;
+  background-color: #334155;
+  margin: 0;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #475569;
+}
+
 /* Inputs & Form Groups */
 .input-group {
   display: flex;
@@ -219,6 +238,37 @@ button:hover {
   margin-bottom: 10px;
 }
 
+/* Straight Insights Card Fix */
+.insight-card {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  text-align: left;
+}
+
+.insight-header {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 6px;
+}
+
+/* Visible Bullet Points Fix */
+.insights-list {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 10px 0;
+}
+
+.insights-list li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
 .battery-container {
   width: 100%;
   height: 24px;
@@ -381,8 +431,9 @@ button:hover {
 
 .btn-advice-corner {
   width: auto;
-  padding: 4px 8px;
+  padding: 6px 12px;
   margin-top: 10px;
   background: #eab308;
   color: #0f172a;
+  font-weight: bold;
 }
