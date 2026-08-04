@@ -19,6 +19,7 @@ let appState = {
 };
 
 let pieChartInstance = null;
+let currentAdviceHtml = "";
 
 function getCurrentMonthYear() {
   const date = new Date();
@@ -98,6 +99,12 @@ const summaryMonthName = document.getElementById('summary-month-name');
 const summaryReportDetails = document.getElementById('summary-report-details');
 const btnKeepBudget = document.getElementById('btn-keep-budget');
 const btnNewBudget = document.getElementById('btn-new-budget');
+
+// Advice Modal Elements
+const btnToggleAdvice = document.getElementById('btn-toggle-advice');
+const modalAdvice = document.getElementById('modal-advice');
+const adviceContent = document.getElementById('advice-content');
+const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
 
 let configuredCategories = [];
 
@@ -433,22 +440,7 @@ function renderPieChart() {
   });
 }
 
-// Automated Insights & Smart Budget Reordering Advice
-function updateInsightsWidget() {
-  insightsList.innerHTML = '';
-  const tracker = appState.activeTracker;
-  if (!tracker) return;
-
-  const totalSpent = tracker.categories.reduce((sum, c) => sum + c.spent, 0);
-
-  if (totalSpent === 0) {
-    insightsList.innerHTML = '<li>Log expenses to see percentage breakdowns and advice!</li>';
-    return;
-    // Global variable to store the current generated advice
-let currentAdviceHtml = "";
-
-// 2. AUTOMATED INSIGHTS & ADVICE SEPARATION
-// 2. AUTOMATED INSIGHTS & ADVICE SEPARATION
+// Automated Insights & Advice Modal Trigger
 function updateInsightsWidget() {
   insightsList.innerHTML = '';
   const tracker = appState.activeTracker;
@@ -462,7 +454,7 @@ function updateInsightsWidget() {
     return;
   }
 
-  // 1. Render ONLY percentage bullet points in the note
+  // Render ONLY percentage bullet points in the note
   tracker.categories.forEach(cat => {
     if (cat.spent > 0) {
       const percentage = ((cat.spent / totalSpent) * 100).toFixed(1);
@@ -472,7 +464,7 @@ function updateInsightsWidget() {
     }
   });
 
-  // 2. Build detailed advice and suggestions for the modal popup
+  // Build detailed advice for the modal
   const overspentCats = [];
   const underspentCats = [];
 
@@ -506,12 +498,7 @@ function updateInsightsWidget() {
   }
 }
 
-// Event Listeners for Advice Modal
-const btnToggleAdvice = document.getElementById('btn-toggle-advice');
-const modalAdvice = document.getElementById('modal-advice');
-const adviceContent = document.getElementById('advice-content');
-const btnCloseAdviceModal = document.getElementById('btn-close-advice-modal');
-
+// Advice Modal Event Listeners
 btnToggleAdvice.addEventListener('click', () => {
   adviceContent.innerHTML = currentAdviceHtml;
   modalAdvice.classList.remove('hidden');
