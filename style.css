@@ -4,6 +4,8 @@
   --card-bg: #ffffff;
   --text-main: #1e293b;
   --accent-pink: #f472b6;
+  --btn-pink: #db2777;
+  --btn-pink-hover: #be185d;
 }
 
 body {
@@ -11,6 +13,7 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--baby-pink);
   color: var(--text-main);
+  min-height: 100vh;
 }
 
 .hidden {
@@ -44,7 +47,7 @@ body {
 }
 
 /* CARDS & BOXES */
-.hero-card, .form-card, .card-section, .metric-card, .modal-content, .sidebar, .postit-note {
+.hero-card, .form-card, .card-section, .metric-card, .modal-content, .sidebar {
   background-color: var(--card-bg);
   border: 2px solid #fbcfe8;
   border-radius: 16px;
@@ -145,39 +148,63 @@ body {
   background-color: var(--card-bg);
 }
 
-/* POST-IT GRID */
+/* POST-IT NOTE GRID & CARDS */
 .postit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  gap: 24px;
   width: 100%;
   max-width: 800px;
 }
 
 .postit-note {
-  padding: 20px;
+  background-color: #fef08a; /* Soft Post-it Yellow */
+  border: none;
+  border-radius: 2px 2px 18px 2px; /* Soft curl effect on corner */
+  padding: 24px 18px 18px 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  box-shadow: 3px 5px 12px rgba(0, 0, 0, 0.12);
+  transform: rotate(-1deg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
-  transition: transform 0.2s;
+}
+
+/* Alternate slight tilt & pink shade for even post-it notes */
+.postit-note:nth-child(even) {
+  transform: rotate(1.5deg);
+  background-color: #fce7f3;
 }
 
 .postit-note:hover {
-  transform: translateY(-3px);
+  transform: scale(1.03) rotate(0deg);
+  box-shadow: 6px 10px 18px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+/* Top tape accent on each post-it note */
+.postit-note::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 16px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .postit-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  font-size: 15px;
-  margin-bottom: 10px;
-  /* Apply pixel font to the category titles inside cards */
   font-family: 'Press Start 2P', monospace;
   font-size: 9px;
   color: #0f172a;
+  margin-bottom: 10px;
 }
 
 .postit-details p {
@@ -190,9 +217,10 @@ body {
 .battery-container {
   width: 100%;
   height: 10px;
-  background-color: #f1f5f9;
+  background-color: rgba(0, 0, 0, 0.08);
   border-radius: 5px;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 .battery-fill {
@@ -278,18 +306,59 @@ body {
   gap: 10px;
 }
 
-.btn-primary, .btn-secondary, .btn-submit, .btn-small {
+/* Shared Matching Styling for Primary Action Buttons */
+.btn-submit,
+.btn-deposit,
+.footer-export .btn-secondary {
+  background-color: var(--btn-pink);
+  color: white;
+  width: 100%;
   padding: 10px 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
+  transition: background-color 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.btn-primary { background-color: var(--accent-pink); color: white; width: 100%; margin-top: 10px; }
-.btn-secondary { background-color: #fce7f3; color: #db2777; width: 100%; margin-top: 10px; }
-.btn-submit { background-color: #db2777; color: white; width: 100%; }
+.btn-submit:hover,
+.btn-deposit:hover,
+.footer-export .btn-secondary:hover {
+  background-color: var(--btn-pink-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary { 
+  background-color: var(--accent-pink); 
+  color: white; 
+  width: 100%; 
+  margin-top: 10px; 
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-secondary { 
+  background-color: #fce7f3; 
+  color: #db2777; 
+  width: 100%; 
+  margin-top: 10px; 
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
 .landing-buttons { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 20px; }
 
 .btn-text {
@@ -356,6 +425,9 @@ body {
   font-size: 28px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fab-options {
@@ -382,16 +454,25 @@ body {
   z-index: 100;
 }
 
+/* Updated Folder Circle Button to Match Plus Button */
 .fab-main-btn-secondary {
   width: 56px;
   height: 56px;
   border-radius: 28px;
-  background-color: #fbcfe8;
-  color: #db2777;
+  background-color: var(--accent-pink);
+  color: white;
   border: none;
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.fab-main-btn-secondary:hover {
+  transform: scale(1.08);
 }
 
 /* MODALS & SIDEBAR */
@@ -451,13 +532,13 @@ body {
   border: 1px solid #fbcfe8;
 }
 
-/* 🌸 FLOWER GARDEN BACKGROUND DECORATION 🌸 */
+/* 🌸 FULL-PAGE FLOWER GARDEN BACKGROUND DECORATION 🌸 */
 .flower-garden {
-  position: absolute;
-  bottom: 0;
+  position: fixed;
+  top: 0;
   left: 0;
-  width: 100%;
-  height: 75vh; /* Extends past the spending breakdown box area */
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   overflow: hidden;
   z-index: -1;
@@ -470,12 +551,16 @@ body {
   opacity: 0.35;
 }
 
-.f1 { bottom: 20px; left: 5%; animation-delay: 0s; font-size: 32px; }
-.f2 { bottom: 120px; left: 15%; animation-delay: 1s; font-size: 24px; }
-.f3 { bottom: 60px; right: 10%; animation-delay: 0.5s; font-size: 36px; }
-.f4 { bottom: 220px; right: 18%; animation-delay: 1.5s; font-size: 26px; }
-.f5 { bottom: 350px; left: 8%; animation-delay: 0.8s; font-size: 30px; }
-.f6 { bottom: 420px; right: 12%; animation-delay: 1.2s; font-size: 28px; }
+.f1 { bottom: 5vh;  left: 3%;   animation-delay: 0s; font-size: 32px; }
+.f2 { bottom: 25vh; left: 8%;   animation-delay: 1s; font-size: 24px; }
+.f3 { bottom: 45vh; left: 4%;   animation-delay: 0.5s; font-size: 30px; }
+.f4 { bottom: 68vh; left: 7%;   animation-delay: 1.5s; font-size: 28px; }
+.f5 { bottom: 88vh; left: 3%;   animation-delay: 0.8s; font-size: 26px; }
+
+.f6 { bottom: 10vh; right: 4%;  animation-delay: 1.2s; font-size: 34px; }
+.f7 { bottom: 30vh; right: 8%;  animation-delay: 0.3s; font-size: 26px; }
+.f8 { bottom: 52vh; right: 5%;  animation-delay: 1.7s; font-size: 32px; }
+.f9 { bottom: 74vh; right: 7%;  animation-delay: 0.9s; font-size: 28px; }
 
 @keyframes sway {
   0% { transform: rotate(-5deg) translateY(0); }
