@@ -6,7 +6,7 @@
 }
 
 body {
-  font-family: Pacifico, sans-serif;
+  font-family: sans-serif;
   background-color: #0f172a;
   color: #f8fafc;
   display: flex;
@@ -126,13 +126,11 @@ button:hover {
   background-color: #059669;
 }
 
-/* Hides any section that has this class */
 .hidden {
   display: none !important;
 }
-/* --- Post-It Note Dashboard Styles --- */
 
-/* Input box for adding expense */
+/* --- Post-It Note Dashboard Styles --- */
 .add-expense-box {
   background-color: #0f172a;
   padding: 1rem;
@@ -146,7 +144,15 @@ button:hover {
   gap: 8px;
 }
 
-/* Post-it Notes Container Grid */
+.expense-inputs input,
+.expense-inputs select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
 .postit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -155,9 +161,8 @@ button:hover {
   justify-items: center;
 }
 
-/* Post-It Note Styling */
 .postit-note {
-  background-color: #fef08a; /* Post-it Yellow */
+  background-color: #fef08a;
   color: #1e293b;
   width: 100%;
   max-width: 220px;
@@ -171,6 +176,8 @@ button:hover {
   flex-direction: column;
   justify-content: space-between;
   text-align: left;
+  cursor: pointer;
+  user-select: none;
 }
 
 .postit-note:nth-child(even) {
@@ -187,7 +194,7 @@ button:hover {
   font-weight: bold;
   font-size: 1.1rem;
   margin-bottom: 5px;
-  border-bottom: 2px stroke #ca8a04;
+  border-bottom: 2px solid #ca8a04;
 }
 
 .postit-details {
@@ -195,7 +202,6 @@ button:hover {
   margin-bottom: 10px;
 }
 
-/* Battery / Progress Bar Container */
 .battery-container {
   width: 100%;
   height: 24px;
@@ -206,25 +212,15 @@ button:hover {
   overflow: hidden;
 }
 
-/* Filling indicator bar */
 .battery-fill {
   height: 100%;
   width: 0%;
   transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
 }
 
-/* Color Thresholds */
-.battery-fill.green {
-  background-color: #10b981; /* <= 75% */
-}
-
-.battery-fill.yellow {
-  background-color: #f59e0b; /* 76% - 99% */
-}
-
-.battery-fill.red {
-  background-color: #ef4444; /* >= 100% */
-}
+.battery-fill.green { background-color: #10b981; }
+.battery-fill.yellow { background-color: #f59e0b; }
+.battery-fill.red { background-color: #ef4444; }
 
 .battery-text {
   text-align: center;
@@ -232,7 +228,7 @@ button:hover {
   font-weight: bold;
   margin-top: 4px;
 }
-/* Floating Bottom-Right Button */
+
 .floating-btn {
   position: fixed;
   bottom: 25px;
@@ -251,15 +247,8 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.floating-btn:hover {
-  background-color: #4f46e5;
-  transform: scale(1.1);
-}
-
-/* Modal Popup Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -289,10 +278,8 @@ button:hover {
   margin-top: 1rem;
 }
 
-/* Interactive Post-It Details Toggle */
-.postit-note {
-  cursor: pointer;
-  user-select: none;
+.modal-buttons.vertical {
+  flex-direction: column;
 }
 
 .history-section {
@@ -324,7 +311,7 @@ button:hover {
   font-style: italic;
 }
 
-/* --- Left Sidebar Drawer Styles --- */
+/* Sidebar Drawer */
 .sidebar-toggle-btn {
   position: absolute;
   top: 15px;
@@ -399,7 +386,6 @@ button:hover {
   font-size: 0.85rem;
 }
 
-/* Monthly Summary Modal Styling */
 .summary-details {
   background: #0f172a;
   padding: 12px;
@@ -409,10 +395,7 @@ button:hover {
   font-size: 0.85rem;
 }
 
-.modal-buttons.vertical {
-  flex-direction: column;
-}
-/* --- Chart.js Canvas Styling --- */
+/* Chart Container */
 .chart-container {
   position: relative;
   width: 100%;
@@ -420,7 +403,7 @@ button:hover {
   margin: 1rem auto;
 }
 
-/* --- Inline Add Earnings Button --- */
+/* Inline Add Button */
 .btn-inline-add {
   display: inline-block;
   width: auto;
@@ -434,9 +417,9 @@ button:hover {
   background-color: #059669;
 }
 
-/* --- Insight Sticky Note Widget --- */
+/* Insight Sticky Note */
 .postit-note.insight-note {
-  background-color: #bae6fd; /* Post-it Light Blue */
+  background-color: #bae6fd;
   max-width: 100%;
   transform: rotate(0deg);
   min-height: auto;
