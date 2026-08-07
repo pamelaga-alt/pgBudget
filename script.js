@@ -38,9 +38,31 @@ function loadStateFromLocalStorage() {
   if (savedData) {
     try {
       appState = JSON.parse(savedData);
+      
+      if (!appState.activeTracker) {
+        appState.activeTracker = {
+          id: null,
+          name: "",
+          monthYear: "",
+          totalBudget: 0,
+          totalEarnings: 0,
+          categories: [],
+          savingsGoals: []
+        };
+      }
+      
       if (!appState.activeTracker.savingsGoals) {
         appState.activeTracker.savingsGoals = [];
       }
+      
+      if (appState.activeTracker.categories) {
+        appState.activeTracker.categories.forEach(cat => {
+          if (!cat.history) {
+            cat.history = [];
+          }
+        });
+      }
+      
       return true;
     } catch (err) {
       console.error("Error parsing stored state:", err);
@@ -537,7 +559,6 @@ btnAddExpense.addEventListener('click', () => {
     category.spent += amount;
     if (!category.history) category.history = [];
     
-    // Push the transaction record with the formatted date
     category.history.push({
       id: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       note: note,
@@ -675,11 +696,11 @@ function renderDashboard() {
     const card = document.createElement('div');
     card.className = 'postit-note';
 
-    // Build scrollable transaction log HTML for this category
     let historyHtml = '';
     if (cat.history && cat.history.length > 0) {
       const filteredHistory = cat.history.filter(txn => {
-        return txn.note.toLowerCase().includes(searchQuery);
+        const noteText = txn.note || "";
+        return noteText.toLowerCase().includes(searchQuery);
       });
 
       if (filteredHistory.length > 0) {
@@ -687,8 +708,8 @@ function renderDashboard() {
         filteredHistory.slice().reverse().forEach(txn => {
           historyHtml += `
             <div style="display:flex; justify-content:space-between; margin-bottom:3px; gap:6px;">
-              <span style="color:#334155;"><strong>${txn.date}</strong>: ${txn.note}</span>
-              <span style="color:#ef4444; font-weight:600;">$${txn.amount.toFixed(2)}</span>
+              <span style="color:#334155;"><strong>${txn.date || 'Recent'}</strong>: ${txn.note || 'Expense'}</span>
+              <span style="color:#ef4444; font-weight:600;">$${(txn.amount || 0).toFixed(2)}</span>
             </div>
           `;
         });
