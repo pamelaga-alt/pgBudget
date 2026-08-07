@@ -536,11 +536,13 @@ btnAddExpense.addEventListener('click', () => {
   if (category) {
     category.spent += amount;
     if (!category.history) category.history = [];
+    
+    // Push the transaction record with the formatted date
     category.history.push({
-      id: `exp_${Date.now()}`,
+      id: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       note: note,
       amount: amount,
-      date: new Date().toLocaleDateString()
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     });
 
     expenseNoteInput.value = '';
@@ -615,7 +617,6 @@ function renderInsights() {
     return;
   }
 
-  // Check over-budget status
   const overBudget = categories.filter(c => c.spent > c.limit);
   if (overBudget.length > 0) {
     inlineAdvice.innerHTML = `<span style="color: #ef4444; font-weight: bold;">⚠️ You are over budget in ${overBudget.length} category/categories!</span>`;
@@ -623,7 +624,6 @@ function renderInsights() {
     inlineAdvice.innerHTML = `<span style="color: #10b981; font-weight: bold;">✅ Great job!</span> You are within budget for all categories. Keep it up!`;
   }
 
-  // Breakdown percentages
   categories.forEach(cat => {
     if (cat.spent > 0) {
       const share = ((cat.spent / totalSpent) * 100).toFixed(1);
@@ -663,7 +663,7 @@ function renderDashboard() {
   // Render Post-it Grid
   postitContainer.innerHTML = '';
 
-  // 1. Render Spending Categories (Yellow Post-its)
+  // 1. Render Spending Categories (Yellow Post-its with Transaction Logs)
   tracker.categories.forEach(cat => {
     if (categoryFilter !== "ALL" && cat.id !== categoryFilter) return;
 
@@ -673,7 +673,28 @@ function renderDashboard() {
     if (percent >= 100) colorClass = 'red';
 
     const card = document.createElement('div');
-    card.className = 'postit-note'; // Standard Yellow Post-it
+    card.className = 'postit-note';
+
+    // Build scrollable transaction log HTML for this category
+    let historyHtml = '';
+    if (cat.history && cat.history.length > 0) {
+      const filteredHistory = cat.history.filter(txn => {
+        return txn.note.toLowerCase().includes(searchQuery);
+      });
+
+      if (filteredHistory.length > 0) {
+        historyHtml = '<div class="txn-log-container" style="margin-top:10px; max-height:90px; overflow-y:auto; font-size:11px; border-top:1px dashed #cbd5e1; padding-top:6px;">';
+        filteredHistory.slice().reverse().forEach(txn => {
+          historyHtml += `
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px; gap:6px;">
+              <span style="color:#334155;"><strong>${txn.date}</strong>: ${txn.note}</span>
+              <span style="color:#ef4444; font-weight:600;">$${txn.amount.toFixed(2)}</span>
+            </div>
+          `;
+        });
+        historyHtml += '</div>';
+      }
+    }
 
     card.innerHTML = `
       <div>
@@ -688,6 +709,7 @@ function renderDashboard() {
             <div class="battery-fill ${colorClass}" style="width: ${Math.min(percent, 100)}%;"></div>
           </div>
           <div class="battery-text">${percent.toFixed(1)}% used</div>
+          ${historyHtml}
         </div>
       </div>
     `;
@@ -702,7 +724,7 @@ function renderDashboard() {
       const percent = goal.target > 0 ? Math.min((goal.saved / goal.target) * 100, 100) : 0;
 
       const card = document.createElement('div');
-      card.className = 'postit-note savings-goal'; // Blue Savings Goal Class
+      card.className = 'postit-note savings-goal';
 
       card.innerHTML = `
         <div>
@@ -748,7 +770,6 @@ function renderChart() {
     }
   });
 
-  // Calculate Unused Budget slice
   const remainingBudget = appState.activeTracker.totalBudget - totalSpent;
   if (remainingBudget > 0) {
     labels.push("Unused Budget");
@@ -766,7 +787,6 @@ function renderChart() {
     emptyState.classList.add('hidden');
   }
 
-  // Set color for each slice (Mint Green reserved for Unused Budget)
   const backgroundColors = labels.map((label, idx) => {
     if (label === "Unused Budget") return '#34d399';
     return colors[idx % colors.length];
